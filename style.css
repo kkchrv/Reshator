@@ -1,0 +1,30 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: beige;
+}
+h1 {
+    font-size: 50px;
+}
+h2 {
+    font-size: 20px;
+}
+p {
+    font-size: 20px;
+}
+button {
+    font-size: 18px;
+}
+.choice {
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 10px;
+    width: 250px;
+}
+.choice:hover {
+    background-color: green;
+    cursor: grab;
+}
