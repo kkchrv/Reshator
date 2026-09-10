@@ -5,26 +5,90 @@ body {
     align-items: center;
     min-height: 100vh;
     background-color: beige;
+    font-family: sans-serif;
+    margin: 0;
 }
-h1 {
-    font-size: 50px;
-}
-h2 {
-    font-size: 20px;
-}
-p {
-    font-size: 20px;
-}
-button {
-    font-size: 18px;
-}
+h1 { font-size: 50px; margin-bottom: 10px; }
+h2 { font-size: 20px; color: #555; }
+p { font-size: 20px; }
+
+button { font-size: 18px; }
+
 .choice {
     padding: 10px 20px;
     margin: 5px;
     border-radius: 10px;
     width: 250px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    transition: background-color 0.2s, color 0.2s;
 }
 .choice:hover {
     background-color: green;
-    cursor: grab;
+    color: white;
+    cursor: pointer;
+}
+.result {
+    width: 250px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 15px;
+    text-align: center;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.result.show {
+    display: block;
+    animation: showResult 0.5s ease forwards;
+}
+@keyframes showResult {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.result-title { font-size: 16px; margin: 0 0 10px 0; color: #777; }
+#result { font-size: 24px; font-weight: bold; margin: 0; color: #333; }
+
+/* Анимация пульсации для финального выбора */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); color: #00ffffff; }
+    100% { transform: scale(1); }
+}
+
+/* Добавим легкий зазор для иконок в тексте, если решишь вставить их прямо в HTML */
+.choice {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Чтобы интерфейс на мобилках не скроллился и сидел как влитой */
+html, body {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Стиль для кнопки внутри карточки результата */
+.reroll-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #262936; /* Чуть светлее фона карточки */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reroll-btn:hover {
+    background-color: #00cec9; /* Окрашивается в цвет неона при наведении */
+    color: #0d0e12;
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(0, 206, 201, 0.3);
 }

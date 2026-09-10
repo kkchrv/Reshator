@@ -1,16 +1,28 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <h1>Решатор</h1>
-        <h2>Не можешь решить? Решатор решит за тебя</h2>
-       <p>Что решаем?</p>
-        <button class="choice">Что поесть?</button>
-        <button class="choice">Что посмотреть?</button>
-        <button class="choice">Во что поиграть?</button>
-        <button class="choice">Что делать вдвоем?</button>
-    </body>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Решатор</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Решатор</h1>
+    <h2>Не можешь решить? Решатор решит за тебя</h2>
+    <p>Что решаем?</p>
+    
+    <button class="choice" data-category="food"><span>Что поесть?</span> <span>🍔</span></button>
+    <button class="choice" data-category="watch"><span>Что посмотреть?</span> <span>🍿</span></button>
+    <button class="choice" data-category="game"><span>Во что поиграть?</span> <span>🎮</span></button>
+    <button class="choice" data-category="love"><span>Что делать вдвоем?</span> <span>✨</span></button>
+
+    <div class="result" id="resultBlock">
+    <p class="result-title">Твой выбор</p>
+    <p id="result"></p>
+    <!-- Новая кнопка перевыбора -->
+    <button id="rerollButton" class="reroll-btn">Крутить ещё раз 🔄</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
