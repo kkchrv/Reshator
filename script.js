@@ -10,6 +10,8 @@ const resultBlock = document.getElementById("resultBlock");
 const rerollButton = document.getElementById("rerollButton");
 const buttons = document.querySelectorAll(".choice");
 
+const tg = window.Telegram.WebApp;
+
 let currentCategory = null; // Здесь будем хранить запущенную категорию
 
 // Функция для запуска крутилки (вынесена отдельно, чтобы не дублировать код)
@@ -62,3 +64,5 @@ rerollButton.addEventListener("click", function() {
         startRoulette(currentCategory); // Крутим ту же категорию заново
     }
 });
+
+tg.ready();
