@@ -1,94 +1,328 @@
+/* =========================
+   ОСНОВНЫЕ НАСТРОЙКИ
+   ========================= */
+
+:root {
+    --tg-bg: var(--tg-theme-bg-color, #f5f5f5);
+    --tg-text: var(--tg-theme-text-color, #111111);
+    --tg-hint: var(--tg-theme-hint-color, #777777);
+    --tg-button: var(--tg-theme-button-color, #3390ec);
+    --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+    --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #eeeeee);
+
+    --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+    --border: rgba(127, 127, 127, 0.2);
+}
+
+
+/* =========================
+   BODY
+   ========================= */
+
+html {
+    min-height: 100%;
+}
+
 body {
+    margin: 0;
+
+    min-height: 100vh;
+
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+
+/* =========================
+   ОСНОВНОЙ КОНТЕЙНЕР
+   ========================= */
+
+.app {
+    width: min(100% - 32px, 420px);
+
+    min-height: 100vh;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-color: beige;
-    font-family: sans-serif;
-    margin: 0;
-}
-h1 { font-size: 50px; margin-bottom: 10px; }
-h2 { font-size: 20px; color: #555; }
-p { font-size: 20px; }
 
-button { font-size: 18px; }
+    padding:
+        40px 0
+        calc(40px + env(safe-area-inset-bottom));
+}
+
+
+/* =========================
+   ЗАГОЛОВОК
+   ========================= */
+
+h1 {
+    margin: 0;
+
+    font-size: 42px;
+    line-height: 1.1;
+
+    font-weight: 800;
+
+    color: var(--tg-text);
+}
+
+
+h2 {
+    margin: 10px 0 0;
+
+    font-size: 17px;
+    line-height: 1.4;
+
+    font-weight: 400;
+
+    text-align: center;
+
+    color: var(--tg-hint);
+}
+
+
+/* =========================
+   ТЕКСТ
+   ========================= */
+
+.question {
+    margin: 32px 0 14px;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: var(--tg-text);
+}
+
+
+/* =========================
+   КНОПКИ КАТЕГОРИЙ
+   ========================= */
+
+.choices {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
 
 .choice {
-    padding: 10px 20px;
-    margin: 5px;
-    border-radius: 10px;
-    width: 250px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    transition: background-color 0.2s, color 0.2s;
-}
-.choice:hover {
-    background-color: green;
-    color: white;
+    width: 100%;
+
+    min-height: 58px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    background-color: var(--card-bg);
+    color: var(--tg-text);
+
+    font-size: 17px;
+    font-weight: 500;
+
     cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform 0.15s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
 }
+
+
+.choice:hover {
+    border-color: var(--tg-button);
+}
+
+
+.choice:active {
+    transform: scale(0.97);
+}
+
+
+.choice-icon {
+    font-size: 24px;
+}
+
+
+/* =========================
+   КАРТОЧКА РЕЗУЛЬТАТА
+   ========================= */
+
 .result {
-    width: 250px;
-    margin-top: 20px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 15px;
+    width: 100%;
+
+    box-sizing: border-box;
+
+    margin-top: 18px;
+    padding: 22px;
+
+    border-radius: 20px;
+
+    background-color: var(--card-bg);
+
+    border: 1px solid var(--border);
+
     text-align: center;
+
     display: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.08);
 }
+
+
 .result.show {
     display: block;
-    animation: showResult 0.5s ease forwards;
-}
-@keyframes showResult {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.result-title { font-size: 16px; margin: 0 0 10px 0; color: #777; }
-#result { font-size: 24px; font-weight: bold; margin: 0; color: #333; }
 
-/* Анимация пульсации для финального выбора */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); color: #00cec9; }
-    100% { transform: scale(1); }
+    animation:
+        showResult 0.45s ease forwards;
 }
 
-/* Добавим легкий зазор для иконок в тексте, если решишь вставить их прямо в HTML */
-.choice {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-/* Чтобы интерфейс на мобилках не скроллился и сидел как влитой */
-html, body {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
+.result-title {
+    margin: 0 0 10px;
 
-/* Стиль для кнопки внутри карточки результата */
-.reroll-btn {
-    margin-top: 20px;
-    width: 100%;
-    padding: 12px;
     font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    background-color: #262936; /* Чуть светлее фона карточки */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    font-weight: 500;
+
+    color: var(--tg-hint);
 }
 
-.reroll-btn:hover {
-    background-color: #00cec9; /* Окрашивается в цвет неона при наведении */
-    color: #0d0e12;
-    border-color: transparent;
-    box-shadow: 0 0 15px rgba(0, 206, 201, 0.3);
+
+#result {
+    margin: 0;
+
+    font-size: 26px;
+    line-height: 1.3;
+
+    font-weight: 800;
+
+    color: var(--tg-text);
+}
+
+
+/* =========================
+   КНОПКА ПЕРЕВЫБОРА
+   ========================= */
+
+.reroll-btn {
+    width: 100%;
+
+    margin-top: 20px;
+
+    min-height: 48px;
+
+    padding: 0 16px;
+
+    border: none;
+    border-radius: 14px;
+
+    background-color: var(--tg-button);
+    color: var(--tg-button-text);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.2s ease;
+}
+
+
+.reroll-btn:active {
+    transform: scale(0.97);
+}
+
+
+/* =========================
+   АНИМАЦИИ
+   ========================= */
+
+@keyframes showResult {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+@keyframes pulse {
+
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+}
+
+
+/* =========================
+   МОБИЛЬНЫЕ УСТРОЙСТВА
+   ========================= */
+
+@media (max-width: 480px) {
+
+    .app {
+        width: calc(100% - 24px);
+
+        padding-top: 32px;
+    }
+
+    h1 {
+        font-size: 38px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
 }

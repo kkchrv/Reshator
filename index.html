@@ -3,27 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Решатор</title>
+
+    <!-- Telegram Mini App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <h1>Решатор</h1>
-    <h2>Не можешь решить? Решатор решит за тебя</h2>
-    <p>Что решаем?</p>
-    
-    <button class="choice" data-category="food"><span>Что поесть?</span> <span>🍔</span></button>
-    <button class="choice" data-category="watch"><span>Что посмотреть?</span> <span>🍿</span></button>
-    <button class="choice" data-category="game"><span>Во что поиграть?</span> <span>🎮</span></button>
-    <button class="choice" data-category="love"><span>Что делать вдвоем?</span> <span>✨</span></button>
 
-    <div class="result" id="resultBlock">
-    <p class="result-title">Твой выбор</p>
-    <p id="result"></p>
-    <!-- Новая кнопка перевыбора -->
-    <button id="rerollButton" class="reroll-btn">Крутить ещё раз 🔄</button>
-    </div>
+    <main class="app">
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <h1>Решатор</h1>
+
+        <h2>Не можешь решить?<br>Решатор решит за тебя</h2>
+
+        <p class="question">Что решаем?</p>
+
+        <div class="choices">
+
+            <button class="choice" data-category="food">
+                <span>Что поесть?</span>
+                <span class="choice-icon">🍔</span>
+            </button>
+
+            <button class="choice" data-category="watch">
+                <span>Что посмотреть?</span>
+                <span class="choice-icon">🍿</span>
+            </button>
+
+            <button class="choice" data-category="game">
+                <span>Во что поиграть?</span>
+                <span class="choice-icon">🎮</span>
+            </button>
+
+            <button class="choice" data-category="love">
+                <span>Что делать вдвоем?</span>
+                <span class="choice-icon">✨</span>
+            </button>
+
+        </div>
+
+        <div class="result" id="resultBlock">
+
+            <p class="result-title">Твой выбор</p>
+
+            <p id="result"></p>
+
+            <button id="rerollButton" class="reroll-btn">
+                Крутить ещё раз 🔄
+            </button>
+
+        </div>
+
+    </main>
+
     <script src="script.js"></script>
+
 </body>
 </html>
