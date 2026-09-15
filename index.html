@@ -6,7 +6,6 @@
 
     <title>Решатор</title>
 
-    <!-- Telegram Mini App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -16,47 +15,173 @@
 
     <main class="app">
 
-        <h1>Решатор</h1>
+        <!-- ==================== -->
+        <!-- ГЛАВНЫЙ ЭКРАН -->
+        <!-- ==================== -->
 
-        <h2>Не можешь решить?<br>Решатор решит за тебя</h2>
+        <section id="homeScreen" class="screen">
 
-        <p class="question">Что решаем?</p>
+            <h1>Решатор</h1>
 
-        <div class="choices">
+            <h2>
+                Не можешь решить?<br>
+                Решатор решит за тебя
+            </h2>
 
-            <button class="choice" data-category="food">
-                <span>Что поесть?</span>
-                <span class="choice-icon">🍔</span>
+            <p class="question">Что решаем?</p>
+
+            <div class="choices">
+
+                <button class="choice" data-category="food">
+                    <span>Что поесть?</span>
+                    <span class="choice-icon">🍔</span>
+                </button>
+
+                <button class="choice" data-category="watch">
+                    <span>Что посмотреть?</span>
+                    <span class="choice-icon">🍿</span>
+                </button>
+
+                <button class="choice" data-category="game">
+                    <span>Во что поиграть?</span>
+                    <span class="choice-icon">🎮</span>
+                </button>
+
+                <button class="choice" data-category="love">
+                    <span>Что делать вдвоём?</span>
+                    <span class="choice-icon">✨</span>
+                </button>
+
+            </div>
+
+            <!-- РЕЗУЛЬТАТ -->
+
+            <div class="result" id="resultBlock">
+
+                <p class="result-title">Твой выбор</p>
+
+                <p id="result"></p>
+
+                <button id="rerollButton" class="reroll-btn">
+                    Крутить ещё раз 🔄
+                </button>
+
+            </div>
+
+            <!-- НАСТРОЙКИ -->
+
+            <button id="settingsButton" class="settings-button">
+                ⚙️ Настройки
             </button>
 
-            <button class="choice" data-category="watch">
-                <span>Что посмотреть?</span>
-                <span class="choice-icon">🍿</span>
+        </section>
+
+
+        <!-- ==================== -->
+        <!-- ЭКРАН НАСТРОЕК -->
+        <!-- ==================== -->
+
+        <section id="settingsScreen" class="screen hidden">
+
+            <div class="screen-header">
+
+                <button id="backButton" class="back-button">
+                    ←
+                </button>
+
+                <h3>Настройки</h3>
+
+            </div>
+
+            <p class="settings-description">
+                Здесь можно настроить списки вариантов
+                для каждой категории.
+            </p>
+
+            <div class="settings-list">
+
+                <button
+                    class="settings-item"
+                    data-category="food"
+                >
+                    <span>🍔 Что поесть?</span>
+                    <span>›</span>
+                </button>
+
+                <button
+                    class="settings-item"
+                    data-category="watch"
+                >
+                    <span>🍿 Что посмотреть?</span>
+                    <span>›</span>
+                </button>
+
+                <button
+                    class="settings-item"
+                    data-category="game"
+                >
+                    <span>🎮 Во что поиграть?</span>
+                    <span>›</span>
+                </button>
+
+                <button
+                    class="settings-item"
+                    data-category="love"
+                >
+                    <span>✨ Что делать вдвоём?</span>
+                    <span>›</span>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================== -->
+        <!-- РЕДАКТОР СПИСКА -->
+        <!-- ==================== -->
+
+        <section id="editorScreen" class="screen hidden">
+
+            <div class="screen-header">
+
+                <button id="editorBackButton" class="back-button">
+                    ←
+                </button>
+
+                <h3 id="editorTitle">
+                    Что поесть?
+                </h3>
+
+            </div>
+
+            <div id="itemsList" class="items-list">
+                <!-- Сюда JavaScript добавит варианты -->
+            </div>
+
+            <div class="add-item">
+
+                <input
+                    id="newItemInput"
+                    type="text"
+                    placeholder="Новый вариант..."
+                    maxlength="100"
+                >
+
+                <button id="addItemButton">
+                    Добавить
+                </button>
+
+            </div>
+
+            <button
+                id="resetListButton"
+                class="reset-button"
+            >
+                Сбросить список
             </button>
 
-            <button class="choice" data-category="game">
-                <span>Во что поиграть?</span>
-                <span class="choice-icon">🎮</span>
-            </button>
-
-            <button class="choice" data-category="love">
-                <span>Что делать вдвоем?</span>
-                <span class="choice-icon">✨</span>
-            </button>
-
-        </div>
-
-        <div class="result" id="resultBlock">
-
-            <p class="result-title">Твой выбор</p>
-
-            <p id="result"></p>
-
-            <button id="rerollButton" class="reroll-btn">
-                Крутить ещё раз 🔄
-            </button>
-
-        </div>
+        </section>
 
     </main>
 
