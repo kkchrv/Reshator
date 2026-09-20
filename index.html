@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Решатор</title>
 
@@ -28,49 +32,50 @@
                 Решатор решит за тебя
             </h2>
 
-            <p class="question">Что решаем?</p>
+            <p class="question">
+                Что решаем?
+            </p>
 
             <div class="choices">
 
-                <button class="choice" data-category="food">
+                <button
+                    class="choice"
+                    data-category="food"
+                >
                     <span>Что поесть?</span>
                     <span class="choice-icon">🍔</span>
                 </button>
 
-                <button class="choice" data-category="watch">
+                <button
+                    class="choice"
+                    data-category="watch"
+                >
                     <span>Что посмотреть?</span>
                     <span class="choice-icon">🍿</span>
                 </button>
 
-                <button class="choice" data-category="game">
+                <button
+                    class="choice"
+                    data-category="game"
+                >
                     <span>Во что поиграть?</span>
                     <span class="choice-icon">🎮</span>
                 </button>
 
-                <button class="choice" data-category="love">
+                <button
+                    class="choice"
+                    data-category="love"
+                >
                     <span>Что делать вдвоём?</span>
                     <span class="choice-icon">✨</span>
                 </button>
 
             </div>
 
-            <!-- РЕЗУЛЬТАТ -->
-
-            <div class="result" id="resultBlock">
-
-                <p class="result-title">Твой выбор</p>
-
-                <p id="result"></p>
-
-                <button id="rerollButton" class="reroll-btn">
-                    Крутить ещё раз 🔄
-                </button>
-
-            </div>
-
-            <!-- НАСТРОЙКИ -->
-
-            <button id="settingsButton" class="settings-button">
+            <button
+                id="settingsButton"
+                class="settings-button"
+            >
                 ⚙️ Настройки
             </button>
 
@@ -81,11 +86,17 @@
         <!-- ЭКРАН НАСТРОЕК -->
         <!-- ==================== -->
 
-        <section id="settingsScreen" class="screen hidden">
+        <section
+            id="settingsScreen"
+            class="screen hidden"
+        >
 
             <div class="screen-header">
 
-                <button id="backButton" class="back-button">
+                <button
+                    id="backButton"
+                    class="back-button"
+                >
                     ←
                 </button>
 
@@ -141,11 +152,17 @@
         <!-- РЕДАКТОР СПИСКА -->
         <!-- ==================== -->
 
-        <section id="editorScreen" class="screen hidden">
+        <section
+            id="editorScreen"
+            class="screen hidden"
+        >
 
             <div class="screen-header">
 
-                <button id="editorBackButton" class="back-button">
+                <button
+                    id="editorBackButton"
+                    class="back-button"
+                >
                     ←
                 </button>
 
@@ -155,8 +172,11 @@
 
             </div>
 
-            <div id="itemsList" class="items-list">
-                <!-- Сюда JavaScript добавит варианты -->
+            <div
+                id="itemsList"
+                class="items-list"
+            >
+                <!-- Варианты -->
             </div>
 
             <div class="add-item">
@@ -185,7 +205,66 @@
 
     </main>
 
+
+    <!-- ==================== -->
+    <!-- МОДАЛЬНАЯ РУЛЕТКА -->
+    <!-- ==================== -->
+
+    <div
+        id="rouletteModal"
+        class="roulette-modal"
+    >
+
+        <div class="roulette-overlay"></div>
+
+        <div class="roulette-window">
+
+            <button
+                id="closeRouletteButton"
+                class="close-roulette"
+                aria-label="Закрыть"
+            >
+                ×
+            </button>
+
+            <p
+                id="rouletteCategory"
+                class="roulette-category"
+            >
+                Что поесть?
+            </p>
+
+            <div class="slot-machine">
+
+                <div class="slot-window">
+
+                    <div
+                        id="slotTrack"
+                        class="slot-track"
+                    >
+                        <!-- Варианты -->
+                    </div>
+
+                    <div class="slot-marker"></div>
+
+                </div>
+
+            </div>
+
+            <button
+                id="rerollButton"
+                class="reroll-btn"
+            >
+                Крутить ещё раз 🔄
+            </button>
+
+        </div>
+
+    </div>
+
+
     <script src="script.js"></script>
 
 </body>
+
 </html>

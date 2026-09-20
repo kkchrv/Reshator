@@ -80,7 +80,18 @@ let options;
 
 if (savedOptions) {
 
-    options = JSON.parse(savedOptions);
+    try {
+
+        options = JSON.parse(savedOptions);
+
+    } catch (error) {
+
+        options =
+            JSON.parse(
+                JSON.stringify(defaultOptions)
+            );
+
+    }
 
 } else {
 
@@ -134,29 +145,63 @@ const buttons =
 const settingsItems =
     document.querySelectorAll(".settings-item");
 
-const resultBlock =
-    document.getElementById("resultBlock");
 
-const resultText =
-    document.getElementById("result");
+// ====================
+// РУЛЕТКА
+// ====================
+
+const rouletteModal =
+    document.getElementById("rouletteModal");
+
+const closeRouletteButton =
+    document.getElementById(
+        "closeRouletteButton"
+    );
+
+const rouletteCategory =
+    document.getElementById(
+        "rouletteCategory"
+    );
+
+const slotTrack =
+    document.getElementById(
+        "slotTrack"
+    );
 
 const rerollButton =
-    document.getElementById("rerollButton");
+    document.getElementById(
+        "rerollButton"
+    );
+
+
+// ====================
+// РЕДАКТОР
+// ====================
 
 const editorTitle =
-    document.getElementById("editorTitle");
+    document.getElementById(
+        "editorTitle"
+    );
 
 const itemsList =
-    document.getElementById("itemsList");
+    document.getElementById(
+        "itemsList"
+    );
 
 const newItemInput =
-    document.getElementById("newItemInput");
+    document.getElementById(
+        "newItemInput"
+    );
 
 const addItemButton =
-    document.getElementById("addItemButton");
+    document.getElementById(
+        "addItemButton"
+    );
 
 const resetListButton =
-    document.getElementById("resetListButton");
+    document.getElementById(
+        "resetListButton"
+    );
 
 
 // ====================
@@ -165,9 +210,11 @@ const resetListButton =
 
 let currentCategory = null;
 
+let editorCategory = null;
+
 let isRolling = false;
 
-let editorCategory = null;
+let previousResult = null;
 
 
 // ====================
@@ -176,24 +223,31 @@ let editorCategory = null;
 
 function openSettings() {
 
-    homeScreen.classList.add("hidden");
+    homeScreen.classList.add(
+        "hidden"
+    );
 
-    settingsScreen.classList.remove("hidden");
+    settingsScreen.classList.remove(
+        "hidden"
+    );
 
 }
 
-
 function closeSettings() {
 
-    settingsScreen.classList.add("hidden");
+    settingsScreen.classList.add(
+        "hidden"
+    );
 
-    homeScreen.classList.remove("hidden");
+    homeScreen.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 // ====================
-// ОТКРЫТИЕ РЕДАКТОРА
+// РЕДАКТОР
 // ====================
 
 function openEditor(category) {
@@ -203,33 +257,31 @@ function openEditor(category) {
     editorTitle.textContent =
         options[category].title;
 
-    settingsScreen.classList.add("hidden");
+    settingsScreen.classList.add(
+        "hidden"
+    );
 
-    editorScreen.classList.remove("hidden");
+    editorScreen.classList.remove(
+        "hidden"
+    );
 
     renderItems();
 
 }
 
-
-// ====================
-// ЗАКРЫТИЕ РЕДАКТОРА
-// ====================
-
 function closeEditor() {
 
-    editorScreen.classList.add("hidden");
+    editorScreen.classList.add(
+        "hidden"
+    );
 
-    settingsScreen.classList.remove("hidden");
+    settingsScreen.classList.remove(
+        "hidden"
+    );
 
     newItemInput.value = "";
 
 }
-
-
-// ====================
-// ОТРИСОВКА СПИСКА
-// ====================
 
 function renderItems() {
 
@@ -238,94 +290,106 @@ function renderItems() {
     const list =
         options[editorCategory].list;
 
-    list.forEach((item, index) => {
+    list.forEach(
+        (item, index) => {
 
-        const itemElement =
-            document.createElement("div");
-
-        itemElement.className = "list-item";
-
-
-        // Поле с текстом
-
-        const input =
-            document.createElement("input");
-
-        input.type = "text";
-
-        input.value = item;
-
-        input.maxLength = 100;
-
-
-        // Сохраняем изменения
-
-        input.addEventListener(
-            "change",
-            function() {
-
-                const newValue =
-                    input.value.trim();
-
-                if (!newValue) {
-
-                    input.value = list[index];
-
-                    return;
-
-                }
-
-                options[editorCategory].list[index] =
-                    newValue;
-
-                saveOptions();
-
-            }
-        );
-
-
-        // Кнопка удаления
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.className =
-            "delete-item";
-
-        deleteButton.textContent =
-            "🗑️";
-
-
-        deleteButton.addEventListener(
-            "click",
-            function() {
-
-                options[editorCategory].list.splice(
-                    index,
-                    1
+            const itemElement =
+                document.createElement(
+                    "div"
                 );
 
-                saveOptions();
-
-                renderItems();
-
-            }
-        );
+            itemElement.className =
+                "list-item";
 
 
-        itemElement.appendChild(input);
+            const input =
+                document.createElement(
+                    "input"
+                );
 
-        itemElement.appendChild(deleteButton);
+            input.type = "text";
 
-        itemsList.appendChild(itemElement);
+            input.value = item;
 
-    });
+            input.maxLength = 100;
+
+            input.addEventListener(
+                "change",
+                function() {
+
+                    const newValue =
+                        input.value.trim();
+
+                    if (!newValue) {
+
+                        input.value =
+                            list[index];
+
+                        return;
+
+                    }
+
+                    options[
+                        editorCategory
+                    ].list[index] =
+                        newValue;
+
+                    saveOptions();
+
+                }
+            );
+
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+            deleteButton.className =
+                "delete-item";
+
+            deleteButton.textContent =
+                "🗑️";
+
+            deleteButton.addEventListener(
+                "click",
+                function() {
+
+                    options[
+                        editorCategory
+                    ].list.splice(
+                        index,
+                        1
+                    );
+
+                    saveOptions();
+
+                    renderItems();
+
+                }
+            );
+
+
+            itemElement.appendChild(
+                input
+            );
+
+            itemElement.appendChild(
+                deleteButton
+            );
+
+            itemsList.appendChild(
+                itemElement
+            );
+
+        }
+    );
 
 }
 
 
 // ====================
-// ДОБАВЛЕНИЕ ВАРИАНТА
+// ДОБАВЛЕНИЕ
 // ====================
 
 function addItem() {
@@ -337,8 +401,9 @@ function addItem() {
         return;
     }
 
-
-    options[editorCategory].list.push(value);
+    options[
+        editorCategory
+    ].list.push(value);
 
     saveOptions();
 
@@ -350,16 +415,10 @@ function addItem() {
 
 }
 
-
-// Кнопка
-
 addItemButton.addEventListener(
     "click",
     addItem
 );
-
-
-// Enter в поле
 
 newItemInput.addEventListener(
     "keydown",
@@ -392,11 +451,14 @@ resetListButton.addEventListener(
             return;
         }
 
-
-        options[editorCategory].list =
+        options[
+            editorCategory
+        ].list =
             JSON.parse(
                 JSON.stringify(
-                    defaultOptions[editorCategory].list
+                    defaultOptions[
+                        editorCategory
+                    ].list
                 )
             );
 
@@ -409,10 +471,78 @@ resetListButton.addEventListener(
 
 
 // ====================
+// ОТКРЫТИЕ РУЛЕТКИ
+// ====================
+
+function openRoulette(category) {
+
+    currentCategory =
+        category;
+
+    previousResult = null;
+
+    rouletteCategory.textContent =
+        options[category].title;
+
+    slotTrack.innerHTML = "";
+
+    rouletteModal.classList.add(
+        "show"
+    );
+
+}
+
+
+// ====================
+// ЗАКРЫТИЕ РУЛЕТКИ
+// ====================
+
+function closeRoulette() {
+
+    if (isRolling) {
+        return;
+    }
+
+    rouletteModal.classList.remove(
+        "show"
+    );
+
+}
+
+
+// ====================
+// ПОДГОТОВКА ЭЛЕМЕНТА SLOT
+// ====================
+
+function createSlotItem(
+    text,
+    icon
+) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.className =
+        "slot-item";
+
+    element.textContent =
+        `${icon} ${text}`;
+
+    return element;
+
+}
+
+
+// ====================
 // РУЛЕТКА
 // ====================
 
-function startRoulette(category) {
+function startRoulette(
+    category,
+    isReroll = false
+) {
 
     if (isRolling) {
         return;
@@ -429,153 +559,273 @@ function startRoulette(category) {
 
     if (currentList.length === 0) {
 
-        resultBlock.classList.add("show");
+        slotTrack.innerHTML = "";
 
-        resultText.textContent =
-            "Добавь варианты в настройках";
+        const emptyItem =
+            createSlotItem(
+                "Добавь варианты",
+                "⚙️"
+            );
+
+        slotTrack.appendChild(
+            emptyItem
+        );
 
         return;
+    }
+
+
+    // ====================
+    // ДОСТУПНЫЕ ВАРИАНТЫ
+    // ====================
+
+    let availableList =
+        [...currentList];
+
+    /*
+        При повторном запуске
+        убираем только предыдущий
+        результат.
+
+        Если вариант всего один —
+        он остаётся доступным.
+    */
+
+    if (
+        isReroll &&
+        previousResult !== null &&
+        availableList.length > 1
+    ) {
+
+        availableList =
+            availableList.filter(
+                item =>
+                    item !== previousResult
+            );
 
     }
 
 
+    // ====================
+    // НАЧИНАЕМ АНИМАЦИЮ
+    // ====================
+
     isRolling = true;
 
-    resultBlock.classList.add("show");
+    rouletteModal.classList.add(
+        "rolling"
+    );
 
 
-    buttons.forEach(button => {
+    // Очищаем старый барабан
 
-        button.style.pointerEvents = "none";
-        button.style.opacity = "0.6";
-
-    });
+    slotTrack.innerHTML = "";
 
 
-    rerollButton.style.pointerEvents =
-        "none";
+    // ====================
+    // СОЗДАЁМ ДЛИННЫЙ БАРАБАН
+    // ====================
 
-    rerollButton.style.opacity =
-        "0.5";
+    const spinItems = [];
 
+    const rounds = 8;
 
-    let counter = 0;
+    for (
+        let round = 0;
+        round < rounds;
+        round++
+    ) {
 
+        availableList.forEach(
+            item => {
 
-    const interval =
-        setInterval(() => {
-
-            const randomIndex =
-                Math.floor(
-                    Math.random() *
-                    currentList.length
-                );
-
-
-            resultText.textContent =
-                `${currentData.icon} ${currentList[randomIndex]}`;
-
-
-            counter++;
-
-
-            if (counter > 12) {
-
-                clearInterval(interval);
-
-
-                const finalIndex =
-                    Math.floor(
-                        Math.random() *
-                        currentList.length
-                    );
-
-
-                resultText.textContent =
-                    `${currentData.icon} ${currentList[finalIndex]}`;
-
-
-                resultText.style.animation =
-                    "none";
-
-                void resultText.offsetWidth;
-
-                resultText.style.animation =
-                    "pulse 0.3s ease-in-out";
-
-
-                isRolling = false;
-
-
-                buttons.forEach(button => {
-
-                    button.style.pointerEvents =
-                        "auto";
-
-                    button.style.opacity =
-                        "1";
-
-                });
-
-
-                rerollButton.style.pointerEvents =
-                    "auto";
-
-                rerollButton.style.opacity =
-                    "1";
-
-
-                if (tg.HapticFeedback) {
-
-                    tg.HapticFeedback.notificationOccurred(
-                        "success"
-                    );
-
-                }
+                spinItems.push(item);
 
             }
+        );
 
-        }, 60);
-
-}
+    }
 
 
-// ====================
-// ВЫБОР КАТЕГОРИИ
-// ====================
+    spinItems.forEach(
+        item => {
 
-buttons.forEach(button => {
-
-    button.addEventListener(
-        "click",
-        function() {
-
-            currentCategory =
-                this.dataset.category;
-
-            startRoulette(
-                currentCategory
+            slotTrack.appendChild(
+                createSlotItem(
+                    item,
+                    currentData.icon
+                )
             );
 
         }
     );
 
-});
+
+    // ====================
+    // ВЫБИРАЕМ РЕЗУЛЬТАТ
+    // ====================
+
+    const finalIndex =
+        Math.floor(
+            Math.random() *
+            availableList.length
+        );
+
+    const finalResult =
+        availableList[finalIndex];
+
+
+    // ====================
+    // ПОЗИЦИЯ РЕЗУЛЬТАТА
+    // ====================
+
+    const roundSize =
+        availableList.length;
+
+    const targetRound = 6;
+
+    const targetIndex =
+        targetRound * roundSize +
+        finalIndex;
+
+    const itemHeight = 82;
+
+    const offset =
+        targetIndex * itemHeight;
+
+
+    // ====================
+    // ЗАПУСК АНИМАЦИИ
+    // ====================
+
+    slotTrack.style.transition =
+        "none";
+
+    slotTrack.style.transform =
+        "translateY(0)";
+
+
+    // Принудительно применяем
+    // начальное положение
+
+    void slotTrack.offsetWidth;
+
+
+    slotTrack.style.transition =
+        "transform 3s cubic-bezier(0.12, 0.8, 0.18, 1)";
+
+    slotTrack.style.transform =
+        `translateY(-${offset}px)`;
+
+
+    // ====================
+    // ЗАВЕРШЕНИЕ
+    // ====================
+
+    setTimeout(
+        function() {
+
+            previousResult =
+                finalResult;
+
+            isRolling = false;
+
+            rouletteModal.classList.remove(
+                "rolling"
+            );
+
+
+            // Вибрация Telegram
+
+            if (
+                tg.HapticFeedback
+            ) {
+
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            }
+
+        },
+        3100
+    );
+
+}
 
 
 // ====================
-// КРУТИТЬ ЕЩЁ РАЗ
+// КАТЕГОРИИ
+// ====================
+
+buttons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                const category =
+                    this.dataset.category;
+
+                openRoulette(
+                    category
+                );
+
+                startRoulette(
+                    category,
+                    false
+                );
+
+            }
+        );
+
+    }
+);
+
+
+// ====================
+// REROLL
 // ====================
 
 rerollButton.addEventListener(
     "click",
     function() {
 
-        if (currentCategory) {
+        if (!currentCategory) {
+            return;
+        }
 
-            startRoulette(
-                currentCategory
-            );
+        startRoulette(
+            currentCategory,
+            true
+        );
+
+    }
+);
+
+
+// ====================
+// ЗАКРЫТИЕ РУЛЕТКИ
+// ====================
+
+closeRouletteButton.addEventListener(
+    "click",
+    closeRoulette
+);
+
+rouletteModal.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target.classList.contains(
+                "roulette-overlay"
+            )
+        ) {
+
+            closeRoulette();
 
         }
 
@@ -584,52 +834,43 @@ rerollButton.addEventListener(
 
 
 // ====================
-// ОТКРЫТЬ НАСТРОЙКИ
+// НАСТРОЙКИ
 // ====================
 
 settingsButton.addEventListener(
     "click",
-    function() {
-
-        openSettings();
-
-    }
+    openSettings
 );
-
-
-// ====================
-// НАЗАД ИЗ НАСТРОЕК
-// ====================
 
 backButton.addEventListener(
     "click",
-    function() {
-
-        closeSettings();
-
-    }
+    closeSettings
 );
 
 
 // ====================
-// ОТКРЫТЬ РЕДАКТОР КАТЕГОРИИ
+// КАТЕГОРИИ В НАСТРОЙКАХ
 // ====================
 
-settingsItems.forEach(item => {
+settingsItems.forEach(
+    item => {
 
-    item.addEventListener(
-        "click",
-        function() {
+        item.addEventListener(
+            "click",
+            function() {
 
-            const category =
-                this.dataset.category;
+                const category =
+                    this.dataset.category;
 
-            openEditor(category);
+                openEditor(
+                    category
+                );
 
-        }
-    );
+            }
+        );
 
-});
+    }
+);
 
 
 // ====================
@@ -638,11 +879,7 @@ settingsItems.forEach(item => {
 
 editorBackButton.addEventListener(
     "click",
-    function() {
-
-        closeEditor();
-
-    }
+    closeEditor
 );
 
 
