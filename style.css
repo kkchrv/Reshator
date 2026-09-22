@@ -8,12 +8,8 @@
 
     --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
     --border: rgba(127, 127, 127, 0.2);
+    --danger: #e53935;
 }
-
-
-/* ==================== */
-/* ОСНОВА */
-/* ==================== */
 
 html {
     min-height: 100%;
@@ -34,10 +30,6 @@ body {
         Helvetica,
         Arial,
         sans-serif;
-
-    transition:
-        background-color 0.25s ease,
-        color 0.25s ease;
 }
 
 button,
@@ -70,7 +62,7 @@ button {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 
@@ -84,8 +76,6 @@ h1 {
     font-size: 42px;
     line-height: 1.1;
     font-weight: 800;
-
-    color: var(--tg-text);
 }
 
 h2 {
@@ -105,8 +95,6 @@ h2 {
 
     font-size: 18px;
     font-weight: 600;
-
-    color: var(--tg-text);
 }
 
 .choices {
@@ -143,16 +131,15 @@ h2 {
 
     transition:
         transform 0.15s ease,
-        border-color 0.2s ease,
-        opacity 0.2s ease;
-}
-
-.choice:hover {
-    border-color: var(--tg-button);
+        border-color 0.2s ease;
 }
 
 .choice:active {
     transform: scale(0.97);
+}
+
+.choice:hover {
+    border-color: var(--tg-button);
 }
 
 .choice-icon {
@@ -175,9 +162,6 @@ h2 {
     font-weight: 600;
 
     cursor: pointer;
-
-    transition:
-        transform 0.15s ease;
 }
 
 .settings-button:active {
@@ -186,7 +170,400 @@ h2 {
 
 
 /* ==================== */
-/* МОДАЛЬНАЯ РУЛЕТКА */
+/* ЗАГОЛОВКИ ЭКРАНОВ */
+/* ==================== */
+
+.screen-header {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+
+.screen-header h3 {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.back-button {
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background-color: var(--card-bg);
+    color: var(--tg-text);
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+
+/* ==================== */
+/* НАСТРОЙКИ */
+/* ==================== */
+
+.settings-description {
+    margin: 0 0 20px;
+
+    font-size: 15px;
+    line-height: 1.4;
+
+    color: var(--tg-hint);
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.settings-item {
+    width: 100%;
+    min-height: 56px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    background-color: var(--card-bg);
+    color: var(--tg-text);
+
+    font-size: 16px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.settings-item:active {
+    transform: scale(0.98);
+}
+
+.create-category-button {
+    width: 100%;
+    min-height: 52px;
+
+    margin-top: 16px;
+
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+
+    background-color: transparent;
+    color: var(--tg-button);
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* ==================== */
+/* РЕДАКТОР КАТЕГОРИИ */
+/* ==================== */
+
+.category-editor {
+    padding: 16px;
+
+    margin-bottom: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    background-color: var(--card-bg);
+}
+
+.category-editor-title {
+    margin-bottom: 12px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: var(--tg-hint);
+}
+
+.category-editor-fields {
+    display: flex;
+
+    gap: 8px;
+}
+
+.editor-icon-input {
+    flex: 0 0 58px;
+
+    width: 58px;
+    height: 50px;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    outline: none;
+
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+
+    font-size: 25px;
+
+    text-align: center;
+}
+
+.editor-name-input {
+    flex: 1;
+
+    min-width: 0;
+    height: 50px;
+
+    padding: 0 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    outline: none;
+
+    background-color: var(--tg-bg);
+    color: var(--tg-text);
+
+    font-size: 16px;
+}
+
+.editor-icon-input:focus,
+.editor-name-input:focus,
+.add-item input:focus {
+    border-color: var(--tg-button);
+}
+
+.save-category-button {
+    width: 100%;
+    min-height: 48px;
+
+    margin-top: 10px;
+
+    border: none;
+    border-radius: 14px;
+
+    background-color: var(--tg-button);
+    color: var(--tg-button-text);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.save-category-button:active {
+    transform: scale(0.98);
+}
+
+.editor-section-title {
+    margin-bottom: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    color: var(--tg-hint);
+}
+
+
+/* ==================== */
+/* ПОЗИЦИИ */
+/* ==================== */
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+.list-item {
+    width: 100%;
+    min-height: 56px;
+
+    padding: 0 8px 0 16px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    background-color: var(--card-bg);
+}
+
+.list-item input {
+    flex: 1;
+
+    min-width: 0;
+    height: 54px;
+
+    padding: 0;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+    color: var(--tg-text);
+
+    font-size: 16px;
+}
+
+.delete-item-button {
+    flex: 0 0 38px;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: transparent;
+    color: var(--tg-hint);
+
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 38px;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.delete-item-button:hover {
+    background-color: rgba(127, 127, 127, 0.12);
+    color: var(--tg-text);
+}
+
+.delete-item-button:active {
+    transform: scale(0.88);
+}
+
+
+/* ==================== */
+/* ДОБАВЛЕНИЕ ПОЗИЦИИ */
+/* ==================== */
+
+.add-item {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.add-item input {
+    flex: 1;
+
+    min-width: 0;
+    height: 50px;
+
+    padding: 0 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    outline: none;
+
+    background-color: var(--card-bg);
+    color: var(--tg-text);
+
+    font-size: 16px;
+}
+
+.add-item button {
+    height: 50px;
+
+    padding: 0 16px;
+
+    border: none;
+    border-radius: 14px;
+
+    background-color: var(--tg-button);
+    color: var(--tg-button-text);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* ==================== */
+/* ДЕЙСТВИЯ КАТЕГОРИИ */
+/* ==================== */
+
+.reset-button {
+    width: 100%;
+    min-height: 50px;
+
+    margin-top: 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    background-color: transparent;
+    color: var(--tg-hint);
+
+    font-size: 15px;
+
+    cursor: pointer;
+}
+
+.delete-category-button {
+    width: 100%;
+    min-height: 50px;
+
+    margin-top: 10px;
+
+    border: none;
+    border-radius: 14px;
+
+    background-color: rgba(229, 57, 53, 0.1);
+    color: var(--danger);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* ==================== */
+/* РУЛЕТКА */
 /* ==================== */
 
 .roulette-modal {
@@ -213,9 +590,6 @@ h2 {
         modalFadeIn 0.2s ease forwards;
 }
 
-
-/* Затемнение без blur */
-
 .roulette-overlay {
     position: absolute;
 
@@ -223,7 +597,6 @@ h2 {
 
     background: rgba(0, 0, 0, 0.48);
 }
-
 
 .roulette-window {
     position: relative;
@@ -249,11 +622,6 @@ h2 {
         modalWindowIn 0.25s ease forwards;
 }
 
-
-/* ==================== */
-/* КНОПКА ЗАКРЫТИЯ */
-/* ==================== */
-
 .close-roulette {
     position: absolute;
 
@@ -275,19 +643,7 @@ h2 {
     line-height: 1;
 
     cursor: pointer;
-
-    transition:
-        transform 0.15s ease;
 }
-
-.close-roulette:active {
-    transform: scale(0.9);
-}
-
-
-/* ==================== */
-/* НАЗВАНИЕ КАТЕГОРИИ */
-/* ==================== */
 
 .roulette-category {
     margin: 4px 40px 18px;
@@ -297,11 +653,6 @@ h2 {
 
     color: var(--tg-hint);
 }
-
-
-/* ==================== */
-/* SLOT MACHINE */
-/* ==================== */
 
 .slot-machine {
     width: 100%;
@@ -363,9 +714,6 @@ h2 {
     text-overflow: ellipsis;
 }
 
-
-/* Рамка выбранного варианта */
-
 .slot-marker {
     position: absolute;
 
@@ -386,16 +734,33 @@ h2 {
     pointer-events: none;
 }
 
+.share-result-btn {
+    width: 100%;
+    min-height: 48px;
 
-/* ==================== */
-/* КНОПКА REROLL */
-/* ==================== */
+    margin-top: 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    background-color: transparent;
+    color: var(--tg-text);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.share-result-btn:active {
+    transform: scale(0.97);
+}
 
 .reroll-btn {
     width: 100%;
     min-height: 50px;
 
-    margin-top: 16px;
+    margin-top: 10px;
 
     padding: 0 16px;
 
@@ -409,17 +774,14 @@ h2 {
     font-weight: 600;
 
     cursor: pointer;
-
-    transition:
-        transform 0.15s ease,
-        opacity 0.2s ease;
 }
 
 .reroll-btn:active {
     transform: scale(0.97);
 }
 
-.roulette-modal.rolling .reroll-btn {
+.roulette-modal.rolling .reroll-btn,
+.roulette-modal.rolling .share-result-btn {
     pointer-events: none;
 
     opacity: 0.5;
@@ -427,169 +789,64 @@ h2 {
 
 
 /* ==================== */
-/* НАСТРОЙКИ */
+/* СОЗДАНИЕ КАТЕГОРИИ */
 /* ==================== */
 
-.screen-header {
+.small-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 2000;
+
     display: flex;
+
     align-items: center;
+    justify-content: center;
 
-    gap: 12px;
+    padding: 20px;
 
-    margin-bottom: 24px;
+    box-sizing: border-box;
 }
 
-.screen-header h3 {
-    margin: 0;
+.small-modal-overlay {
+    position: absolute;
 
-    font-size: 24px;
-    font-weight: 700;
+    inset: 0;
 
-    color: var(--tg-text);
+    background: rgba(0, 0, 0, 0.48);
 }
 
-.back-button {
-    width: 42px;
-    height: 42px;
+.small-modal-window {
+    position: relative;
 
-    padding: 0;
+    z-index: 1;
 
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    width: min(100%, 360px);
+
+    padding: 24px 20px 20px;
+
+    box-sizing: border-box;
+
+    border-radius: 24px;
 
     background-color: var(--card-bg);
-    color: var(--tg-text);
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.small-modal-window h3 {
+    margin: 0 0 18px;
 
     font-size: 22px;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.15s ease;
 }
 
-.back-button:active {
-    transform: scale(0.95);
-}
-
-.settings-description {
-    margin: 0 0 20px;
-
-    font-size: 15px;
-    line-height: 1.4;
-
-    color: var(--tg-hint);
-}
-
-.settings-list {
-    display: flex;
-    flex-direction: column;
-
-    gap: 10px;
-}
-
-.settings-item {
+.modal-input {
     width: 100%;
-    min-height: 56px;
-
-    padding: 0 18px;
-
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    border: 1px solid var(--border);
-    border-radius: 16px;
-
-    background-color: var(--card-bg);
-    color: var(--tg-text);
-
-    font-size: 16px;
-    font-weight: 500;
-
-    cursor: pointer;
-}
-
-
-/* ==================== */
-/* РЕДАКТОР */
-/* ==================== */
-
-.items-list {
-    display: flex;
-    flex-direction: column;
-
-    gap: 10px;
-
-    margin-bottom: 20px;
-}
-
-.list-item {
-    width: 100%;
-    min-height: 56px;
-
-    padding: 0 14px 0 18px;
-
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    border: 1px solid var(--border);
-    border-radius: 16px;
-
-    background-color: var(--card-bg);
-}
-
-.list-item input {
-    flex: 1;
-
-    min-width: 0;
-
-    border: none;
-    outline: none;
-
-    background: transparent;
-    color: var(--tg-text);
-
-    font-family: inherit;
-    font-size: 16px;
-}
-
-.delete-item {
-    width: 38px;
-    height: 38px;
-
-    flex-shrink: 0;
-
-    border: none;
-    border-radius: 10px;
-
-    background-color: transparent;
-    color: var(--tg-hint);
-
-    font-size: 18px;
-
-    cursor: pointer;
-}
-
-.add-item {
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 10px;
-}
-
-.add-item input {
-    flex: 1;
-
-    min-width: 0;
     height: 50px;
+
+    margin-bottom: 10px;
 
     padding: 0 14px;
 
@@ -600,23 +857,26 @@ h2 {
 
     outline: none;
 
-    background-color: var(--card-bg);
+    background-color: var(--tg-bg);
     color: var(--tg-text);
 
-    font-family: inherit;
     font-size: 16px;
 }
 
-.add-item button {
-    height: 50px;
+.modal-actions {
+    display: flex;
 
-    padding: 0 16px;
+    gap: 8px;
 
-    border: none;
+    margin-top: 8px;
+}
+
+.modal-actions button {
+    flex: 1;
+
+    min-height: 48px;
+
     border-radius: 14px;
-
-    background-color: var(--tg-button);
-    color: var(--tg-button-text);
 
     font-size: 15px;
     font-weight: 600;
@@ -624,22 +884,18 @@ h2 {
     cursor: pointer;
 }
 
-.reset-button {
-    width: 100%;
-    min-height: 50px;
-
-    margin-top: 14px;
-
+.modal-secondary-button {
     border: 1px solid var(--border);
-    border-radius: 14px;
 
-    background-color: transparent;
-    color: var(--tg-hint);
+    background: transparent;
+    color: var(--tg-text);
+}
 
-    font-size: 15px;
-    font-weight: 500;
+.modal-primary-button {
+    border: none;
 
-    cursor: pointer;
+    background: var(--tg-button);
+    color: var(--tg-button-text);
 }
 
 
@@ -656,6 +912,7 @@ h2 {
     to {
         opacity: 1;
     }
+
 }
 
 @keyframes modalWindowIn {
@@ -675,11 +932,12 @@ h2 {
             scale(1)
             translateY(0);
     }
+
 }
 
 
 /* ==================== */
-/* МОБИЛЬНЫЕ */
+/* MOBILE */
 /* ==================== */
 
 @media (max-width: 480px) {
@@ -708,4 +966,5 @@ h2 {
     .slot-item {
         font-size: 22px;
     }
+
 }

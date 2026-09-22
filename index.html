@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -12,7 +13,10 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
@@ -23,7 +27,10 @@
         <!-- ГЛАВНЫЙ ЭКРАН -->
         <!-- ==================== -->
 
-        <section id="homeScreen" class="screen">
+        <section
+            id="homeScreen"
+            class="screen"
+        >
 
             <h1>Решатор</h1>
 
@@ -36,41 +43,10 @@
                 Что решаем?
             </p>
 
-            <div class="choices">
-
-                <button
-                    class="choice"
-                    data-category="food"
-                >
-                    <span>Что поесть?</span>
-                    <span class="choice-icon">🍔</span>
-                </button>
-
-                <button
-                    class="choice"
-                    data-category="watch"
-                >
-                    <span>Что посмотреть?</span>
-                    <span class="choice-icon">🍿</span>
-                </button>
-
-                <button
-                    class="choice"
-                    data-category="game"
-                >
-                    <span>Во что поиграть?</span>
-                    <span class="choice-icon">🎮</span>
-                </button>
-
-                <button
-                    class="choice"
-                    data-category="love"
-                >
-                    <span>Что делать вдвоём?</span>
-                    <span class="choice-icon">✨</span>
-                </button>
-
-            </div>
+            <div
+                id="choices"
+                class="choices"
+            ></div>
 
             <button
                 id="settingsButton"
@@ -83,7 +59,7 @@
 
 
         <!-- ==================== -->
-        <!-- ЭКРАН НАСТРОЕК -->
+        <!-- НАСТРОЙКИ -->
         <!-- ==================== -->
 
         <section
@@ -100,56 +76,34 @@
                     ←
                 </button>
 
-                <h3>Настройки</h3>
+                <h3>
+                    Настройки
+                </h3>
 
             </div>
 
             <p class="settings-description">
-                Здесь можно настроить списки вариантов
-                для каждой категории.
+                Настраивай существующие категории
+                или создавай свои.
             </p>
 
-            <div class="settings-list">
+            <div
+                id="settingsList"
+                class="settings-list"
+            ></div>
 
-                <button
-                    class="settings-item"
-                    data-category="food"
-                >
-                    <span>🍔 Что поесть?</span>
-                    <span>›</span>
-                </button>
-
-                <button
-                    class="settings-item"
-                    data-category="watch"
-                >
-                    <span>🍿 Что посмотреть?</span>
-                    <span>›</span>
-                </button>
-
-                <button
-                    class="settings-item"
-                    data-category="game"
-                >
-                    <span>🎮 Во что поиграть?</span>
-                    <span>›</span>
-                </button>
-
-                <button
-                    class="settings-item"
-                    data-category="love"
-                >
-                    <span>✨ Что делать вдвоём?</span>
-                    <span>›</span>
-                </button>
-
-            </div>
+            <button
+                id="createCategoryButton"
+                class="create-category-button"
+            >
+                ＋ Создать категорию
+            </button>
 
         </section>
 
 
         <!-- ==================== -->
-        <!-- РЕДАКТОР СПИСКА -->
+        <!-- РЕДАКТОР КАТЕГОРИИ -->
         <!-- ==================== -->
 
         <section
@@ -166,18 +120,64 @@
                     ←
                 </button>
 
-                <h3 id="editorTitle">
-                    Что поесть?
+                <h3>
+                    Редактор
                 </h3>
 
+            </div>
+
+
+            <!-- НАСТРОЙКИ КАТЕГОРИИ -->
+
+            <div class="category-editor">
+
+                <div class="category-editor-title">
+                    Категория
+                </div>
+
+                <div class="category-editor-fields">
+
+                    <input
+                        id="editorIconInput"
+                        class="editor-icon-input"
+                        type="text"
+                        maxlength="4"
+                        aria-label="Эмодзи категории"
+                    >
+
+                    <input
+                        id="editorNameInput"
+                        class="editor-name-input"
+                        type="text"
+                        maxlength="40"
+                        placeholder="Название категории"
+                    >
+
+                </div>
+
+                <button
+                    id="saveCategoryChangesButton"
+                    class="save-category-button"
+                >
+                    Сохранить изменения
+                </button>
+
+            </div>
+
+
+            <!-- ПОЗИЦИИ -->
+
+            <div class="editor-section-title">
+                Варианты
             </div>
 
             <div
                 id="itemsList"
                 class="items-list"
-            >
-                <!-- Варианты -->
-            </div>
+            ></div>
+
+
+            <!-- ДОБАВЛЕНИЕ ПОЗИЦИИ -->
 
             <div class="add-item">
 
@@ -194,11 +194,24 @@
 
             </div>
 
+
+            <!-- СБРОС -->
+
             <button
                 id="resetListButton"
                 class="reset-button"
             >
                 Сбросить список
+            </button>
+
+
+            <!-- УДАЛЕНИЕ КАТЕГОРИИ -->
+
+            <button
+                id="deleteCategoryButton"
+                class="delete-category-button hidden"
+            >
+                Удалить категорию
             </button>
 
         </section>
@@ -207,7 +220,7 @@
 
 
     <!-- ==================== -->
-    <!-- МОДАЛЬНАЯ РУЛЕТКА -->
+    <!-- РУЛЕТКА -->
     <!-- ==================== -->
 
     <div
@@ -241,9 +254,7 @@
                     <div
                         id="slotTrack"
                         class="slot-track"
-                    >
-                        <!-- Варианты -->
-                    </div>
+                    ></div>
 
                     <div class="slot-marker"></div>
 
@@ -252,11 +263,74 @@
             </div>
 
             <button
+                id="shareResultButton"
+                class="share-result-btn hidden"
+            >
+                Поделиться результатом ↗
+            </button>
+
+            <button
                 id="rerollButton"
                 class="reroll-btn"
             >
                 Крутить ещё раз 🔄
             </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================== -->
+    <!-- СОЗДАНИЕ КАТЕГОРИИ -->
+    <!-- ==================== -->
+
+    <div
+        id="categoryModal"
+        class="small-modal hidden"
+    >
+
+        <div class="small-modal-overlay"></div>
+
+        <div class="small-modal-window">
+
+            <h3>
+                Новая категория
+            </h3>
+
+            <input
+                id="categoryIconInput"
+                class="modal-input"
+                type="text"
+                placeholder="Эмодзи, например 🍕"
+                maxlength="4"
+            >
+
+            <input
+                id="categoryNameInput"
+                class="modal-input"
+                type="text"
+                placeholder="Название категории"
+                maxlength="40"
+            >
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelCategoryButton"
+                    class="modal-secondary-button"
+                >
+                    Отмена
+                </button>
+
+                <button
+                    id="saveCategoryButton"
+                    class="modal-primary-button"
+                >
+                    Создать
+                </button>
+
+            </div>
 
         </div>
 
