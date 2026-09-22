@@ -2083,3 +2083,101 @@ console.log(
     "Reshator options:",
     options
 );
+
+// ====================
+// ИНТЕГРАЦИЯ TELEGRAM MAIN BUTTON
+// ====================
+
+// Функция для скрытия кнопки при переходе на экраны, где она не нужна
+function hideTelegramMainButton() {
+    tg.MainButton.hide();
+    tg.MainButton.offClick(saveCategoryChanges);
+    tg.MainButton.offClick(handleReroll);
+}
+
+// 1. Модификация для экрана Редактора (Кнопка "Сохранить изменения")
+const originalOpenEditor = openEditor;
+openEditor = function(category) {
+    originalOpenEditor(category);
+    
+    tg.MainButton.setText("СОХРАНИТЬ ИЗМЕНЕНИЯ");
+    tg.MainButton.setParams({
+        bg_color: tg.themeParams.button_color || "#3390ec",
+        text_color: tg.themeParams.button_text_color || "#ffffff"
+    });
+    
+    tg.MainButton.show();
+    tg.MainButton.onClick(saveCategoryChanges);
+};
+
+// Перехватываем закрытие редактора, чтобы спрятать кнопку
+const originalCloseEditor = closeEditor;
+closeEditor = function() {
+    originalCloseEditor();
+    hideTelegramMainButton();
+};
+
+
+// 2. Модификация для Рулетки (Кнопки "Крутить еще раз" и "Поделиться")
+function handleReroll() {
+    if (!currentCategory) return;
+    startRoulette(currentCategory, true);
+}
+
+const originalOpenRoulette = openRoulette;
+openRoulette = function(category) {
+    originalOpenRoulette(category);
+    
+    // Пока идет кручение, настраиваем кнопку на повторный ролл (но блокируем визуально)
+    tg.MainButton.setText("КРУТИТЬ ЕЩЁ РАЗ 🔄");
+    tg.MainButton.setParams({
+        bg_color: tg.themeParams.button_color || "#3390ec",
+        text_color: tg.themeParams.button_text_color || "#ffffff"
+    });
+    
+    tg.MainButton.show();
+    tg.MainButton.onClick(handleReroll);
+};
+
+// Отслеживаем изменения состояний внутри рулетки
+const originalStartRoulette = startRoulette;
+startRoulette = function(category, isReroll = false) {
+    originalStartRoulette(category, isReroll);
+    
+    // Проверяем, если список пуст — отключаем кнопку
+    if (options[category].list.length === 0) {
+        tg.MainButton.hide();
+        return;
+    }
+
+    // Во время анимации вращения блокируем Main Button
+    tg.MainButton.showProgress(false); // показывает лоадер внутри нативной кнопки
+};
+
+// Переопределяем логику окончания вращения. 
+// Нам нужно внедрить изменение состояния кнопки в setTimeout рулетки.
+// Для этого модифицируем поведение завершения:
+const originalSetTimeout = window.setTimeout;
+window.setTimeout = function(callback, delay) {
+    if (delay === 3100 && isRolling) {
+        const originalCallback = callback;
+        callback = function() {
+            originalCallback();
+            // Анимация завершилась: убираем лоадер, возвращаем текст
+            tg.MainButton.hideProgress();
+            tg.MainButton.setText("КРУТИТЬ ЕЩЁ РАЗ 🔄");
+            
+            // Опционально: можно использовать tg.SecondaryButton для кнопки "Поделиться", 
+            // если хотите показывать обе кнопки нативно в ряд (доступно в новых версиях Bot API)
+        };
+    }
+    return originalSetTimeout(callback, delay);
+};
+
+// Перехватываем закрытие рулетки
+const originalCloseRoulette = closeRoulette;
+closeRoulette = function() {
+    if (isRolling) return;
+    originalCloseRoulette();
+    hideTelegramMainButton();
+};
