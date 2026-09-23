@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -21,17 +22,29 @@
   <main id="homeScreen" class="screen active">
 
     <header class="home-header">
+
       <div>
         <h1>Решатор</h1>
-        <p>Не можешь решить? Решатор решит за тебя</p>
+
+        <p>
+          Не можешь решить? Решатор решит за тебя
+        </p>
       </div>
 
-      <button id="settingsButton" class="icon-button" aria-label="Настройки">
+      <button
+        id="settingsButton"
+        class="icon-button"
+        aria-label="Настройки"
+      >
         ⚙️
       </button>
+
     </header>
 
-    <section id="categoriesContainer" class="categories"></section>
+    <section
+      id="categoriesContainer"
+      class="categories"
+    ></section>
 
   </main>
 
@@ -41,13 +54,18 @@
   <main id="settingsScreen" class="screen">
 
     <header class="screen-header">
-      <button id="settingsBackButton" class="back-button">
+
+      <button
+        id="settingsBackButton"
+        class="back-button"
+      >
         ←
       </button>
 
       <h2>Настройки</h2>
 
       <div class="header-spacer"></div>
+
     </header>
 
     <section class="settings-content">
@@ -55,13 +73,24 @@
       <div class="settings-section">
 
         <div class="section-heading">
+
           <h3>Категории</h3>
-          <p>Настройте категории и списки под себя</p>
+
+          <p>
+            Настройте категории и списки под себя
+          </p>
+
         </div>
 
-        <div id="settingsCategories" class="settings-categories"></div>
+        <div
+          id="settingsCategories"
+          class="settings-categories"
+        ></div>
 
-        <button id="createCategoryButton" class="primary-button">
+        <button
+          id="createCategoryButton"
+          class="primary-button"
+        >
           <span>＋</span>
           Создать категорию
         </button>
@@ -79,7 +108,10 @@
 
     <header class="screen-header">
 
-      <button id="editorBackButton" class="back-button">
+      <button
+        id="editorBackButton"
+        class="back-button"
+      >
         ←
       </button>
 
@@ -91,18 +123,22 @@
 
     <section class="editor-content">
 
-      <!-- Настройки категории -->
-
       <div class="category-editor">
 
         <div class="category-editor-title">
+
           <h3>Категория</h3>
-          <p>Название и значок</p>
+
+          <p>
+            Название и значок
+          </p>
+
         </div>
 
         <div class="category-editor-fields">
 
           <div class="icon-input-wrapper">
+
             <span>Иконка</span>
 
             <input
@@ -112,9 +148,11 @@
               maxlength="4"
               autocomplete="off"
             />
+
           </div>
 
           <div class="name-input-wrapper">
+
             <span>Название</span>
 
             <input
@@ -125,6 +163,7 @@
               autocomplete="off"
               placeholder="Название категории"
             />
+
           </div>
 
         </div>
@@ -139,50 +178,78 @@
       </div>
 
 
-      <!-- Список -->
-
       <div class="editor-section">
 
         <div class="editor-section-title">
 
           <div>
+
             <h3>Варианты</h3>
-            <p id="itemsCountText">0 вариантов</p>
+
+            <p id="itemsCountText">
+              0 вариантов
+            </p>
+
           </div>
 
         </div>
 
         <div class="selection-info">
-          <span>Участвуют в рулетке</span>
-          <strong id="activeItemsCount">0 из 0</strong>
+
+          <span>
+            Участвуют в рулетке
+          </span>
+
+          <strong id="activeItemsCount">
+            0 из 0
+          </strong>
+
         </div>
 
-        <div id="itemsList" class="items-list"></div>
+        <div
+          id="itemsList"
+          class="items-list"
+        ></div>
 
-        <div id="emptyItemsState" class="empty-items-state hidden">
-          <div class="empty-icon">📝</div>
+        <div
+          id="emptyItemsState"
+          class="empty-items-state hidden"
+        >
 
-          <h3>Здесь пока пусто</h3>
+          <div class="empty-icon">
+            📝
+          </div>
+
+          <h3>
+            Здесь пока пусто
+          </h3>
 
           <p>
             Добавьте варианты, а затем выберите те,
             которые должны участвовать в рулетке.
           </p>
+
         </div>
 
-        <div id="noActiveItemsState" class="no-active-items-state hidden">
-          <div class="empty-icon">☝️</div>
+        <div
+          id="noActiveItemsState"
+          class="no-active-items-state hidden"
+        >
 
-          <h3>Ничего не выбрано</h3>
+          <div class="empty-icon">
+            ☝️
+          </div>
+
+          <h3>
+            Ничего не выбрано
+          </h3>
 
           <p>
             Отметьте хотя бы один вариант,
             чтобы Решатор мог сделать выбор.
           </p>
+
         </div>
-
-
-        <!-- Добавление -->
 
         <div class="add-item">
 
@@ -205,8 +272,6 @@
 
       </div>
 
-
-      <!-- Опасные действия -->
 
       <div class="danger-section">
 
@@ -233,7 +298,10 @@
 
   <!-- ==================== РУЛЕТКА ==================== -->
 
-  <div id="rouletteModal" class="modal-overlay hidden">
+  <div
+    id="rouletteModal"
+    class="modal-overlay hidden"
+  >
 
     <div class="roulette-modal">
 
@@ -255,8 +323,15 @@
         </div>
 
         <div>
-          <h2 id="rouletteCategoryTitle">Решаем</h2>
-          <p>Случайный выбор</p>
+
+          <h2 id="rouletteCategoryTitle">
+            Решаем
+          </h2>
+
+          <p>
+            Случайный выбор
+          </p>
+
         </div>
 
       </div>
@@ -265,13 +340,22 @@
 
         <div class="slot-highlight"></div>
 
-        <div id="slotWindow" class="slot-window">
-          <div id="slotReel" class="slot-reel"></div>
+        <div
+          id="slotWindow"
+          class="slot-window"
+        >
+          <div
+            id="slotReel"
+            class="slot-reel"
+          ></div>
         </div>
 
       </div>
 
-      <div id="rouletteHint" class="roulette-hint">
+      <div
+        id="rouletteHint"
+        class="roulette-hint"
+      >
         Крутим...
       </div>
 
@@ -283,89 +367,11 @@
       </button>
 
       <button
-        id="showResultButton"
+        id="shareResultButton"
         class="secondary-button result-button hidden"
       >
-        Посмотреть результат
+        📤 Поделиться решением
       </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- ==================== КАРТОЧКА РЕЗУЛЬТАТА ==================== -->
-
-  <div id="resultModal" class="modal-overlay hidden">
-
-    <div class="result-modal">
-
-      <button
-        id="closeResultButton"
-        class="modal-close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
-
-      <div class="result-card">
-
-        <div class="result-card-top">
-
-          <div id="resultIcon" class="result-icon">
-            🎯
-          </div>
-
-          <div id="resultCategory" class="result-category">
-            Решатор
-          </div>
-
-        </div>
-
-        <div class="result-card-content">
-
-          <div class="result-label">
-            РЕШЕНО
-          </div>
-
-          <div id="resultText" class="result-text">
-            Результат
-          </div>
-
-        </div>
-
-        <div class="result-card-footer">
-
-          <div class="result-brand">
-            <span class="result-brand-icon">🎲</span>
-            <span>Решатор</span>
-          </div>
-
-          <div class="result-bot-link">
-            t.me/reshatorbykkchrv_bot/Reshator
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="result-actions">
-
-        <button
-          id="shareResultButton"
-          class="primary-button"
-        >
-          Поделиться
-        </button>
-
-        <button
-          id="copyResultButton"
-          class="secondary-button"
-        >
-          Скопировать
-        </button>
-
-      </div>
 
     </div>
 
@@ -374,7 +380,10 @@
 
   <!-- ==================== СОЗДАНИЕ КАТЕГОРИИ ==================== -->
 
-  <div id="createCategoryModal" class="modal-overlay hidden">
+  <div
+    id="createCategoryModal"
+    class="modal-overlay hidden"
+  >
 
     <div class="create-category-modal">
 
@@ -392,7 +401,9 @@
           ✨
         </div>
 
-        <h2>Новая категория</h2>
+        <h2>
+          Новая категория
+        </h2>
 
         <p>
           Создайте свою категорию и добавьте в неё варианты.
@@ -450,7 +461,10 @@
 
   <!-- ==================== УВЕДОМЛЕНИЕ ==================== -->
 
-  <div id="toast" class="toast hidden"></div>
+  <div
+    id="toast"
+    class="toast hidden"
+  ></div>
 
 
   <script src="script.js"></script>

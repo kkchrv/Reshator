@@ -529,7 +529,7 @@ input {
 }
 
 
-/* ==================== ИНФОРМАЦИЯ О ВЫБОРЕ ==================== */
+/* ==================== ВЫБОР ВАРИАНТОВ ==================== */
 
 .selection-info {
   min-height: 43px;
@@ -558,7 +558,7 @@ input {
 }
 
 
-/* ==================== СПИСОК ВАРИАНТОВ ==================== */
+/* ==================== СПИСОК ==================== */
 
 .items-list {
   display: flex;
@@ -649,6 +649,10 @@ input {
   font-size: 15px;
 }
 
+.list-item.inactive .list-item-input {
+  color: var(--hint);
+}
+
 .list-item-delete {
   width: 32px;
   height: 32px;
@@ -670,11 +674,6 @@ input {
 .list-item-delete:active {
   background: rgba(255, 59, 48, 0.1);
   color: var(--danger);
-}
-
-.list-item.inactive .list-item-input {
-  color: var(--hint);
-  text-decoration: none;
 }
 
 .empty-items-state,
@@ -767,7 +766,7 @@ input {
 }
 
 
-/* ==================== РУЛЕТКА ==================== */
+/* ==================== МОДАЛЬНЫЕ ОКНА ==================== */
 
 .modal-overlay {
   position: fixed;
@@ -787,7 +786,6 @@ input {
 }
 
 .roulette-modal,
-.result-modal,
 .create-category-modal {
   position: relative;
 
@@ -829,6 +827,9 @@ input {
 
   z-index: 2;
 }
+
+
+/* ==================== РУЛЕТКА ==================== */
 
 .roulette-header {
   display: flex;
@@ -941,139 +942,6 @@ input {
 
 .result-button {
   margin-top: 8px;
-}
-
-
-/* ==================== РЕЗУЛЬТАТ ==================== */
-
-.result-modal {
-  padding: 16px;
-}
-
-.result-card {
-  overflow: hidden;
-
-  border-radius: 22px;
-
-  background: var(--secondary-bg);
-
-  box-shadow: var(--shadow-soft);
-}
-
-.result-card-top {
-  min-height: 105px;
-
-  padding: 22px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  background: var(--button);
-  color: var(--button-text);
-}
-
-.result-icon {
-  width: 54px;
-  height: 54px;
-
-  flex: 0 0 54px;
-
-  border-radius: 17px;
-
-  background: rgba(255, 255, 255, 0.16);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 29px;
-}
-
-.result-category {
-  min-width: 0;
-
-  font-size: 19px;
-  font-weight: 700;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.result-card-content {
-  min-height: 210px;
-
-  padding: 30px 24px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  text-align: center;
-
-  background: var(--bg);
-}
-
-.result-label {
-  margin-bottom: 15px;
-
-  color: var(--hint);
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 1.7px;
-}
-
-.result-text {
-  font-size: clamp(25px, 7vw, 34px);
-  font-weight: 800;
-
-  line-height: 1.1;
-  letter-spacing: -0.7px;
-
-  overflow-wrap: anywhere;
-}
-
-.result-card-footer {
-  padding: 14px 18px;
-
-  background: var(--secondary-bg);
-}
-
-.result-brand {
-  display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.result-brand-icon {
-  font-size: 16px;
-}
-
-.result-bot-link {
-  margin-top: 4px;
-
-  color: var(--hint);
-
-  font-size: 11px;
-
-  overflow-wrap: anywhere;
-}
-
-.result-actions {
-  margin-top: 12px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
 }
 
 
@@ -1232,7 +1100,6 @@ input {
   .category-icon {
     width: 45px;
     height: 45px;
-
     flex-basis: 45px;
   }
 

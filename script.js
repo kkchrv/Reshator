@@ -157,20 +157,8 @@ const slotReel =
 const rerollButton =
   document.getElementById("rerollButton");
 
-const showResultButton =
-  document.getElementById("showResultButton");
-
-const resultModal =
-  document.getElementById("resultModal");
-
-const resultIcon =
-  document.getElementById("resultIcon");
-
-const resultCategory =
-  document.getElementById("resultCategory");
-
-const resultText =
-  document.getElementById("resultText");
+const shareResultButton =
+  document.getElementById("shareResultButton");
 
 const toast =
   document.getElementById("toast");
@@ -188,6 +176,7 @@ function cloneDefaults() {
 
 
 function haptic(type = "light") {
+
   try {
 
     if (!tg?.HapticFeedback) {
@@ -195,39 +184,51 @@ function haptic(type = "light") {
     }
 
     if (type === "success") {
-      tg.HapticFeedback.notificationOccurred(
-        "success"
-      );
+
+      tg.HapticFeedback
+        .notificationOccurred("success");
 
     } else if (type === "error") {
-      tg.HapticFeedback.notificationOccurred(
-        "error"
-      );
+
+      tg.HapticFeedback
+        .notificationOccurred("error");
 
     } else {
-      tg.HapticFeedback.impactOccurred(type);
+
+      tg.HapticFeedback
+        .impactOccurred(type);
     }
 
   } catch {
-    // Ничего не делаем
+    // Ничего
   }
 }
 
 
 function showToast(message) {
+
   clearTimeout(toastTimer);
 
-  toast.textContent = message;
+  toast.textContent =
+    message;
 
-  toast.classList.remove("hidden");
+  toast.classList.remove(
+    "hidden"
+  );
 
-  toastTimer = setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 2200);
+  toastTimer =
+    setTimeout(() => {
+
+      toast.classList.add(
+        "hidden"
+      );
+
+    }, 2200);
 }
 
 
 function escapeHtml(value) {
+
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -238,6 +239,7 @@ function escapeHtml(value) {
 
 
 function isCustomCategory(category) {
+
   return !Object.prototype.hasOwnProperty.call(
     defaultOptions,
     category
@@ -270,10 +272,19 @@ function getActiveItems(category) {
   }
 
   return options[category].items
-    .filter((item) => item.enabled !== false)
-    .map((item) => item.text);
+    .filter(
+      (item) =>
+        item.enabled !== false
+    )
+    .map(
+      (item) => item.text
+    );
 }
 
+
+/* =========================================================
+   НОРМАЛИЗАЦИЯ
+   ========================================================= */
 
 function normalizeItems(items) {
 
@@ -282,18 +293,10 @@ function normalizeItems(items) {
   }
 
   const result = [];
-
   const seen = new Set();
 
-  items.forEach((item) => {
 
-    /*
-     * Новый формат:
-     * {
-     *   text: "Пицца",
-     *   enabled: true
-     * }
-     */
+  items.forEach((item) => {
 
     if (
       item &&
@@ -301,13 +304,15 @@ function normalizeItems(items) {
       typeof item.text === "string"
     ) {
 
-      const text = item.text.trim();
+      const text =
+        item.text.trim();
 
       if (!text) {
         return;
       }
 
-      const key = text.toLowerCase();
+      const key =
+        text.toLowerCase();
 
       if (seen.has(key)) {
         return;
@@ -316,30 +321,29 @@ function normalizeItems(items) {
       seen.add(key);
 
       result.push({
+
         text,
-        enabled: item.enabled !== false
+
+        enabled:
+          item.enabled !== false
+
       });
 
       return;
     }
 
 
-    /*
-     * Старый формат:
-     * "Пицца"
-     *
-     * Старые варианты автоматически включаются.
-     */
-
     if (typeof item === "string") {
 
-      const text = item.trim();
+      const text =
+        item.trim();
 
       if (!text) {
         return;
       }
 
-      const key = text.toLowerCase();
+      const key =
+        text.toLowerCase();
 
       if (seen.has(key)) {
         return;
@@ -348,8 +352,11 @@ function normalizeItems(items) {
       seen.add(key);
 
       result.push({
+
         text,
+
         enabled: true
+
       });
     }
 
@@ -359,45 +366,62 @@ function normalizeItems(items) {
 }
 
 
-/* =========================================================
-   LOCAL STORAGE
-   ========================================================= */
-
 function normalizeOptions(data) {
 
   const normalized = {};
 
-  if (!data || typeof data !== "object") {
+  if (
+    !data ||
+    typeof data !== "object"
+  ) {
     return cloneDefaults();
   }
 
-  Object.keys(data).forEach((category) => {
 
-    const value = data[category];
+  Object.keys(data).forEach(
+    (category) => {
 
-    if (!value || typeof value !== "object") {
-      return;
+      const value =
+        data[category];
+
+      if (
+        !value ||
+        typeof value !== "object"
+      ) {
+        return;
+      }
+
+
+      const icon =
+        typeof value.icon === "string" &&
+        value.icon.trim()
+          ? value.icon.trim()
+          : "✨";
+
+
+      const title =
+        typeof value.title === "string" &&
+        value.title.trim()
+          ? value.title.trim()
+          : "Категория";
+
+
+      normalized[category] = {
+
+        icon,
+
+        title,
+
+        items:
+          normalizeItems(
+            value.items
+          )
+
+      };
+
     }
+  );
 
-    const icon =
-      typeof value.icon === "string" &&
-      value.icon.trim()
-        ? value.icon.trim()
-        : "✨";
-
-    const title =
-      typeof value.title === "string" &&
-      value.title.trim()
-        ? value.title.trim()
-        : "Категория";
-
-    normalized[category] = {
-      icon,
-      title,
-      items: normalizeItems(value.items)
-    };
-
-  });
 
   return normalized;
 }
@@ -408,92 +432,93 @@ function mergeWithDefaults(savedOptions) {
   const result = {};
 
   const saved =
-    normalizeOptions(savedOptions);
+    normalizeOptions(
+      savedOptions
+    );
 
 
-  /*
-   * Стандартные категории сохраняются,
-   * даже если пользователь менял их содержимое.
-   */
+  Object.keys(defaultOptions)
+    .forEach(
+      (category) => {
 
-  Object.keys(defaultOptions).forEach(
-    (category) => {
+        if (saved[category]) {
 
-      if (saved[category]) {
+          result[category] = {
 
-        result[category] = {
+            icon:
+              saved[category].icon ||
+              defaultOptions[category].icon,
 
-          icon:
-            saved[category].icon ||
-            defaultOptions[category].icon,
+            title:
+              saved[category].title ||
+              defaultOptions[category].title,
 
-          title:
-            saved[category].title ||
-            defaultOptions[category].title,
+            items:
+              saved[category].items
 
-          items:
-            saved[category].items
+          };
 
-        };
+        } else {
 
-      } else {
+          result[category] = {
 
-        result[category] = {
+            icon:
+              defaultOptions[category].icon,
 
-          icon:
-            defaultOptions[category].icon,
+            title:
+              defaultOptions[category].title,
 
-          title:
-            defaultOptions[category].title,
+            items:
+              normalizeItems(
+                defaultOptions[category].items
+              )
 
-          items:
-            normalizeItems(
-              defaultOptions[category].items
-            )
+          };
 
-        };
+        }
 
       }
+    );
 
-    }
-  );
-
-
-  /*
-   * Пользовательские категории сохраняются.
-   */
 
   Object.keys(saved).forEach(
     (category) => {
 
       if (!result[category]) {
-        result[category] = saved[category];
+
+        result[category] =
+          saved[category];
+
       }
 
     }
   );
 
+
   return result;
 }
 
+
+/* =========================================================
+   LOCAL STORAGE
+   ========================================================= */
 
 function loadOptions() {
 
   try {
 
     const raw =
-      localStorage.getItem(STORAGE_KEY);
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
 
     if (!raw) {
 
-      options = cloneDefaults();
-
-      /*
-       * Преобразуем дефолтные массивы строк
-       * в новый формат объектов.
-       */
-
-      options = normalizeOptions(options);
+      options =
+        normalizeOptions(
+          cloneDefaults()
+        );
 
       saveOptions();
 
@@ -501,7 +526,8 @@ function loadOptions() {
     }
 
 
-    const parsed = JSON.parse(raw);
+    const parsed =
+      JSON.parse(raw);
 
 
     if (
@@ -511,24 +537,11 @@ function loadOptions() {
     ) {
 
       options =
-        mergeWithDefaults(parsed.data);
+        mergeWithDefaults(
+          parsed.data
+        );
 
     } else {
-
-      /*
-       * Миграция:
-       *
-       * версия 1:
-       * items = ["Пицца", "Суши"]
-       *
-       * версия 2:
-       * items = ["Пицца", "Суши"]
-       *
-       * версия 3:
-       * items = [
-       *   { text: "Пицца", enabled: true }
-       * ]
-       */
 
       options =
         mergeWithDefaults(
@@ -558,12 +571,19 @@ function loadOptions() {
 function saveOptions() {
 
   localStorage.setItem(
+
     STORAGE_KEY,
 
     JSON.stringify({
-      version: STORAGE_VERSION,
-      data: options
+
+      version:
+        STORAGE_VERSION,
+
+      data:
+        options
+
     })
+
   );
 }
 
@@ -574,23 +594,44 @@ function saveOptions() {
 
 function showScreen(screen) {
 
-  currentScreen = screen;
+  currentScreen =
+    screen;
 
-  homeScreen.classList.remove("active");
-  settingsScreen.classList.remove("active");
-  editorScreen.classList.remove("active");
+  homeScreen
+    .classList
+    .remove("active");
+
+  settingsScreen
+    .classList
+    .remove("active");
+
+  editorScreen
+    .classList
+    .remove("active");
 
 
   if (screen === "home") {
-    homeScreen.classList.add("active");
+
+    homeScreen
+      .classList
+      .add("active");
+
   }
 
   if (screen === "settings") {
-    settingsScreen.classList.add("active");
+
+    settingsScreen
+      .classList
+      .add("active");
+
   }
 
   if (screen === "editor") {
-    editorScreen.classList.add("active");
+
+    editorScreen
+      .classList
+      .add("active");
+
   }
 
 
@@ -607,62 +648,70 @@ function showScreen(screen) {
 
 function renderHome() {
 
-  categoriesContainer.innerHTML = "";
+  categoriesContainer.innerHTML =
+    "";
 
 
-  Object.entries(options).forEach(
-    ([category, data]) => {
+  Object.entries(options)
+    .forEach(
+      ([category, data]) => {
 
-      const button =
-        document.createElement("button");
+        const button =
+          document.createElement(
+            "button"
+          );
 
-      button.className =
-        "category-button";
-
-
-      const activeCount =
-        data.items.filter(
-          (item) =>
-            item.enabled !== false
-        ).length;
+        button.className =
+          "category-button";
 
 
-      button.innerHTML = `
+        const activeCount =
+          data.items.filter(
+            (item) =>
+              item.enabled !== false
+          ).length;
 
-        <div class="category-icon">
-          ${escapeHtml(data.icon)}
-        </div>
 
-        <div class="category-info">
+        button.innerHTML = `
 
-          <div class="category-title">
-            ${escapeHtml(data.title)}
+          <div class="category-icon">
+            ${escapeHtml(data.icon)}
           </div>
 
-          <div class="category-count">
-            ${activeCount > 0
-              ? `${activeCount} участвует`
-              : "Ничего не выбрано"}
+          <div class="category-info">
+
+            <div class="category-title">
+              ${escapeHtml(data.title)}
+            </div>
+
+            <div class="category-count">
+              ${
+                activeCount > 0
+                  ? `${activeCount} участвует`
+                  : "Ничего не выбрано"
+              }
+            </div>
+
           </div>
 
-        </div>
-
-        <div class="category-arrow">
-          ›
-        </div>
-      `;
+          <div class="category-arrow">
+            ›
+          </div>
+        `;
 
 
-      button.addEventListener(
-        "click",
-        () => openRoulette(category)
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            openRoulette(category)
+        );
 
 
-      categoriesContainer.appendChild(button);
+        categoriesContainer
+          .appendChild(button);
 
-    }
-  );
+      }
+    );
 }
 
 
@@ -672,60 +721,66 @@ function renderHome() {
 
 function renderSettings() {
 
-  settingsCategories.innerHTML = "";
+  settingsCategories.innerHTML =
+    "";
 
 
-  Object.entries(options).forEach(
-    ([category, data]) => {
+  Object.entries(options)
+    .forEach(
+      ([category, data]) => {
 
-      const button =
-        document.createElement("button");
+        const button =
+          document.createElement(
+            "button"
+          );
 
-      button.className =
-        "settings-category";
-
-
-      const activeCount =
-        data.items.filter(
-          (item) =>
-            item.enabled !== false
-        ).length;
+        button.className =
+          "settings-category";
 
 
-      button.innerHTML = `
+        const activeCount =
+          data.items.filter(
+            (item) =>
+              item.enabled !== false
+          ).length;
 
-        <div class="settings-category-icon">
-          ${escapeHtml(data.icon)}
-        </div>
 
-        <div class="settings-category-info">
+        button.innerHTML = `
 
-          <div class="settings-category-title">
-            ${escapeHtml(data.title)}
+          <div class="settings-category-icon">
+            ${escapeHtml(data.icon)}
           </div>
 
-          <div class="settings-category-count">
-            ${activeCount} из ${data.items.length} участвует
+          <div class="settings-category-info">
+
+            <div class="settings-category-title">
+              ${escapeHtml(data.title)}
+            </div>
+
+            <div class="settings-category-count">
+              ${activeCount} из ${data.items.length} участвует
+            </div>
+
           </div>
 
-        </div>
-
-        <div class="settings-category-arrow">
-          ›
-        </div>
-      `;
+          <div class="settings-category-arrow">
+            ›
+          </div>
+        `;
 
 
-      button.addEventListener(
-        "click",
-        () => openEditor(category)
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            openEditor(category)
+        );
 
 
-      settingsCategories.appendChild(button);
+        settingsCategories
+          .appendChild(button);
 
-    }
-  );
+      }
+    );
 }
 
 
@@ -753,7 +808,9 @@ function openEditor(category) {
     return;
   }
 
-  editorCategory = category;
+
+  editorCategory =
+    category;
 
 
   editorIconInput.value =
@@ -779,24 +836,23 @@ function openEditor(category) {
 
   if (isCustomCategory(category)) {
 
-    deleteButton.classList.remove(
-      "hidden"
-    );
+    deleteButton
+      .classList
+      .remove("hidden");
 
-    resetButton.classList.add(
-      "hidden"
-    );
+    resetButton
+      .classList
+      .add("hidden");
 
   } else {
 
-    deleteButton.classList.add(
-      "hidden"
-    );
+    deleteButton
+      .classList
+      .add("hidden");
 
-    resetButton.classList.remove(
-      "hidden"
-    );
-
+    resetButton
+      .classList
+      .remove("hidden");
   }
 
 
@@ -806,7 +862,8 @@ function openEditor(category) {
 
 function closeEditor() {
 
-  editorCategory = null;
+  editorCategory =
+    null;
 
   showScreen("settings");
 }
@@ -825,6 +882,7 @@ function saveCategoryChanges() {
   const icon =
     editorIconInput.value.trim() ||
     "✨";
+
 
   const title =
     editorNameInput.value.trim();
@@ -868,7 +926,7 @@ function saveCategoryChanges() {
 
 
 /* =========================================================
-   РЕДАКТИРОВАНИЕ СПИСКА
+   СПИСОК
    ========================================================= */
 
 function renderEditorItems() {
@@ -892,7 +950,8 @@ function renderEditorItems() {
     ).length;
 
 
-  itemsList.innerHTML = "";
+  itemsList.innerHTML =
+    "";
 
 
   itemsCountText.textContent =
@@ -907,15 +966,15 @@ function renderEditorItems() {
 
   if (items.length === 0) {
 
-    emptyItemsState.classList.remove(
-      "hidden"
-    );
+    emptyItemsState
+      .classList
+      .remove("hidden");
 
   } else {
 
-    emptyItemsState.classList.add(
-      "hidden"
-    );
+    emptyItemsState
+      .classList
+      .add("hidden");
   }
 
 
@@ -924,15 +983,15 @@ function renderEditorItems() {
     activeCount === 0
   ) {
 
-    noActiveItemsState.classList.remove(
-      "hidden"
-    );
+    noActiveItemsState
+      .classList
+      .remove("hidden");
 
   } else {
 
-    noActiveItemsState.classList.add(
-      "hidden"
-    );
+    noActiveItemsState
+      .classList
+      .add("hidden");
   }
 
 
@@ -940,27 +999,29 @@ function renderEditorItems() {
     (item, index) => {
 
       const row =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       row.className =
         "list-item";
 
 
-      if (item.enabled === false) {
+      if (
+        item.enabled === false
+      ) {
         row.classList.add(
           "inactive"
         );
       }
 
 
-      /*
-       * Чекбокс участия
-       */
-
       const checkbox =
         document.createElement(
           "input"
         );
+
 
       checkbox.type =
         "checkbox";
@@ -970,12 +1031,6 @@ function renderEditorItems() {
 
       checkbox.checked =
         item.enabled !== false;
-
-
-      checkbox.setAttribute(
-        "aria-label",
-        "Участвует в рулетке"
-      );
 
 
       checkbox.addEventListener(
@@ -992,24 +1047,25 @@ function renderEditorItems() {
           renderSettings();
 
           haptic("light");
+
         }
       );
 
-
-      /*
-       * Текст варианта
-       */
 
       const input =
         document.createElement(
           "input"
         );
 
+
       input.className =
         "list-item-input";
 
-      input.type = "text";
-      input.maxLength = 100;
+      input.type =
+        "text";
+
+      input.maxLength =
+        100;
 
       input.value =
         item.text;
@@ -1018,10 +1074,12 @@ function renderEditorItems() {
       input.addEventListener(
         "change",
         () => {
+
           updateItem(
             index,
             input.value
           );
+
         }
       );
 
@@ -1040,14 +1098,11 @@ function renderEditorItems() {
       );
 
 
-      /*
-       * Удаление варианта
-       */
-
       const deleteButton =
         document.createElement(
           "button"
         );
+
 
       deleteButton.type =
         "button";
@@ -1058,16 +1113,13 @@ function renderEditorItems() {
       deleteButton.innerHTML =
         "×";
 
-      deleteButton.setAttribute(
-        "aria-label",
-        "Удалить вариант"
-      );
-
 
       deleteButton.addEventListener(
         "click",
         () => {
+
           deleteItem(index);
+
         }
       );
 
@@ -1121,12 +1173,16 @@ function updateItem(index, value) {
 
 
   const duplicate =
-    options[editorCategory].items.some(
-      (item, itemIndex) =>
-        itemIndex !== index &&
-        item.text.toLowerCase() ===
-          cleaned.toLowerCase()
-    );
+    options[editorCategory]
+      .items
+      .some(
+        (item, itemIndex) =>
+
+          itemIndex !== index &&
+
+          item.text.toLowerCase() ===
+            cleaned.toLowerCase()
+      );
 
 
   if (duplicate) {
@@ -1145,7 +1201,8 @@ function updateItem(index, value) {
 
   options[editorCategory]
     .items[index]
-    .text = cleaned;
+    .text =
+      cleaned;
 
 
   saveOptions();
@@ -1182,11 +1239,13 @@ function addItem() {
 
 
   const duplicate =
-    options[editorCategory].items.some(
-      (item) =>
-        item.text.toLowerCase() ===
-        value.toLowerCase()
-    );
+    options[editorCategory]
+      .items
+      .some(
+        (item) =>
+          item.text.toLowerCase() ===
+          value.toLowerCase()
+      );
 
 
   if (duplicate) {
@@ -1203,21 +1262,22 @@ function addItem() {
   }
 
 
-  /*
-   * Новый вариант по умолчанию
-   * сразу участвует в рулетке.
-   */
+  options[editorCategory]
+    .items
+    .push({
 
-  options[editorCategory].items.push({
-    text: value,
-    enabled: true
-  });
+      text: value,
+
+      enabled: true
+
+    });
 
 
   saveOptions();
 
 
-  newItemInput.value = "";
+  newItemInput.value =
+    "";
 
 
   renderEditorItems();
@@ -1267,7 +1327,10 @@ function deleteItem(index) {
   }
 
 
-  items.splice(index, 1);
+  items.splice(
+    index,
+    1
+  );
 
 
   saveOptions();
@@ -1287,7 +1350,7 @@ function deleteItem(index) {
 
 
 /* =========================================================
-   СБРОС СПИСКА
+   СБРОС
    ========================================================= */
 
 function resetCurrentList() {
@@ -1307,13 +1370,9 @@ function resetCurrentList() {
   }
 
 
-  const category =
-    editorCategory;
-
-
   const confirmed =
     window.confirm(
-      `Сбросить список «${options[category].title}» к исходному?`
+      `Сбросить список «${options[editorCategory].title}» к исходному?`
     );
 
 
@@ -1322,9 +1381,11 @@ function resetCurrentList() {
   }
 
 
-  options[category].items =
+  options[editorCategory].items =
     normalizeItems(
-      defaultOptions[category].items
+      defaultOptions[
+        editorCategory
+      ].items
     );
 
 
@@ -1354,7 +1415,8 @@ function openCreateCategory() {
     .getElementById(
       "createCategoryModal"
     )
-    .classList.remove("hidden");
+    .classList
+    .remove("hidden");
 
 
   document
@@ -1371,7 +1433,8 @@ function closeCreateCategory() {
     .getElementById(
       "createCategoryModal"
     )
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
 }
 
 
@@ -1392,6 +1455,7 @@ function createCategory() {
     iconInput.value.trim() ||
     "✨";
 
+
   const title =
     nameInput.value.trim();
 
@@ -1411,11 +1475,13 @@ function createCategory() {
 
 
   const duplicateTitle =
-    Object.values(options).some(
-      (category) =>
-        category.title.toLowerCase() ===
-        title.toLowerCase()
-    );
+    Object.values(options)
+      .some(
+        (category) =>
+          category.title
+            .toLowerCase() ===
+          title.toLowerCase()
+      );
 
 
   if (duplicateTitle) {
@@ -1439,18 +1505,22 @@ function createCategory() {
   while (options[id]) {
 
     id =
-      `custom_${Date.now()}_${Math.floor(
-        Math.random() * 1000
-      )}`;
+      `custom_${Date.now()}_${
+        Math.floor(
+          Math.random() * 1000
+        )
+      }`;
   }
 
 
   options[id] = {
 
     icon,
+
     title,
 
     items: []
+
   };
 
 
@@ -1503,7 +1573,9 @@ function deleteCurrentCategory() {
 
 
   const title =
-    options[editorCategory].title;
+    options[
+      editorCategory
+    ].title;
 
 
   const confirmed =
@@ -1530,7 +1602,8 @@ function deleteCurrentCategory() {
   saveOptions();
 
 
-  editorCategory = null;
+  editorCategory =
+    null;
 
 
   renderHome();
@@ -1563,7 +1636,9 @@ function openRoulette(category) {
     getActiveItems(category);
 
 
-  if (activeItems.length === 0) {
+  if (
+    activeItems.length === 0
+  ) {
 
     haptic("error");
 
@@ -1587,9 +1662,9 @@ function openRoulette(category) {
     options[category].title;
 
 
-  rouletteModal.classList.remove(
-    "hidden"
-  );
+  rouletteModal
+    .classList
+    .remove("hidden");
 
 
   haptic("light");
@@ -1606,13 +1681,16 @@ function closeRoulette() {
   }
 
 
-  rouletteModal.classList.add(
-    "hidden"
-  );
+  rouletteModal
+    .classList
+    .add("hidden");
 
 
-  rouletteCategory = null;
-  rouletteResult = null;
+  rouletteCategory =
+    null;
+
+  rouletteResult =
+    null;
 }
 
 
@@ -1638,15 +1716,6 @@ function getAvailableRouletteItems() {
       rouletteCategory
     ];
 
-
-  /*
-   * Если есть несколько активных вариантов,
-   * прошлый результат не участвует
-   * в следующем запуске.
-   *
-   * Если активный вариант только один —
-   * он остаётся доступен.
-   */
 
   if (
     items.length > 1 &&
@@ -1703,7 +1772,9 @@ function startRoulette() {
     getAvailableRouletteItems();
 
 
-  if (available.length === 0) {
+  if (
+    available.length === 0
+  ) {
 
     haptic("error");
 
@@ -1715,16 +1786,17 @@ function startRoulette() {
   }
 
 
-  isRolling = true;
+  isRolling =
+    true;
 
 
   rerollButton.disabled =
     true;
 
 
-  showResultButton.classList.add(
-    "hidden"
-  );
+  shareResultButton
+    .classList
+    .add("hidden");
 
 
   rouletteHint.textContent =
@@ -1739,13 +1811,12 @@ function startRoulette() {
     "translateY(0)";
 
 
-  /*
-   * Создаём длинную ленту.
-   */
+  const rounds =
+    8;
 
-  const rounds = 8;
 
-  const sequence = [];
+  const sequence =
+    [];
 
 
   for (
@@ -1756,15 +1827,13 @@ function startRoulette() {
 
     available.forEach(
       (item) => {
+
         sequence.push(item);
+
       }
     );
   }
 
-
-  /*
-   * Выбираем результат.
-   */
 
   const result =
     available[
@@ -1838,7 +1907,8 @@ function startRoulette() {
   setTimeout(
     () => {
 
-      isRolling = false;
+      isRolling =
+        false;
 
 
       rerollButton.disabled =
@@ -1849,14 +1919,15 @@ function startRoulette() {
         "Решение готово";
 
 
-      showResultButton.classList.remove(
-        "hidden"
-      );
+      shareResultButton
+        .classList
+        .remove("hidden");
 
 
       previousResults[
         rouletteCategory
-      ] = rouletteResult;
+      ] =
+        rouletteResult;
 
 
       haptic("success");
@@ -1879,106 +1950,867 @@ function rerollRoulette() {
 
 
 /* =========================================================
-   РЕЗУЛЬТАТ
+   ГЕНЕРАЦИЯ КАРТИНКИ
    ========================================================= */
 
-function openResult() {
+/*
+ * Создаём красивую карточку 1080 × 1350.
+ *
+ * Она не зависит от HTML/CSS интерфейса,
+ * поэтому результат получается одинаковым
+ * при любом размере экрана.
+ */
 
-  if (
-    !rouletteCategory ||
-    !rouletteResult
-  ) {
-    return;
-  }
+function createResultCanvas() {
 
+  return new Promise(
+    (resolve, reject) => {
 
-  const category =
-    options[rouletteCategory];
+      if (
+        !rouletteCategory ||
+        !rouletteResult ||
+        !options[rouletteCategory]
+      ) {
 
+        reject(
+          new Error(
+            "Нет результата"
+          )
+        );
 
-  resultIcon.textContent =
-    category.icon;
-
-
-  resultCategory.textContent =
-    category.title;
-
-
-  resultText.textContent =
-    rouletteResult;
-
-
-  resultModal.classList.remove(
-    "hidden"
-  );
+        return;
+      }
 
 
-  haptic("light");
-}
+      const category =
+        options[rouletteCategory];
 
 
-function closeResult() {
+      const canvas =
+        document.createElement(
+          "canvas"
+        );
 
-  resultModal.classList.add(
-    "hidden"
+
+      const width =
+        1080;
+
+      const height =
+        1350;
+
+
+      canvas.width =
+        width;
+
+      canvas.height =
+        height;
+
+
+      const ctx =
+        canvas.getContext(
+          "2d"
+        );
+
+
+      if (!ctx) {
+
+        reject(
+          new Error(
+            "Canvas недоступен"
+          )
+        );
+
+        return;
+      }
+
+
+      /*
+       * Фон
+       */
+
+      ctx.fillStyle =
+        "#f2f2f7";
+
+      ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+      );
+
+
+      /*
+       * Верхний блок
+       */
+
+      const topHeight =
+        360;
+
+
+      ctx.fillStyle =
+        getTelegramButtonColor();
+
+
+      ctx.fillRect(
+        0,
+        0,
+        width,
+        topHeight
+      );
+
+
+      /*
+       * Иконка категории
+       */
+
+      const iconX =
+        90;
+
+      const iconY =
+        88;
+
+      const iconSize =
+        184;
+
+
+      drawRoundedRect(
+        ctx,
+        iconX,
+        iconY,
+        iconSize,
+        iconSize,
+        48
+      );
+
+
+      ctx.fillStyle =
+        "rgba(255,255,255,0.16)";
+
+
+      ctx.fill();
+
+
+      ctx.font =
+        "100px Apple Color Emoji, Segoe UI Emoji, sans-serif";
+
+      ctx.textAlign =
+        "center";
+
+      ctx.textBaseline =
+        "middle";
+
+      ctx.fillStyle =
+        "#ffffff";
+
+
+      ctx.fillText(
+        category.icon,
+        iconX + iconSize / 2,
+        iconY + iconSize / 2 + 4
+      );
+
+
+      /*
+       * Название категории
+       */
+
+      ctx.textAlign =
+        "left";
+
+      ctx.textBaseline =
+        "alphabetic";
+
+
+      ctx.fillStyle =
+        "#ffffff";
+
+
+      ctx.font =
+        "700 54px -apple-system, BlinkMacSystemFont, Arial, sans-serif";
+
+
+      drawWrappedText(
+        ctx,
+        category.title,
+        90,
+        335,
+        900,
+        62,
+        "#ffffff",
+        54,
+        2
+      );
+
+
+      /*
+       * Центральная карточка
+       */
+
+      const cardX =
+        55;
+
+      const cardY =
+        410;
+
+      const cardWidth =
+        970;
+
+      const cardHeight =
+        650;
+
+
+      ctx.fillStyle =
+        "#ffffff";
+
+
+      drawRoundedRect(
+        ctx,
+        cardX,
+        cardY,
+        cardWidth,
+        cardHeight,
+        42
+      );
+
+      ctx.fill();
+
+
+      /*
+       * Заголовок
+       */
+
+      ctx.textAlign =
+        "center";
+
+
+      ctx.fillStyle =
+        "#8e8e93";
+
+
+      ctx.font =
+        "800 28px -apple-system, BlinkMacSystemFont, Arial, sans-serif";
+
+
+      ctx.letterSpacing =
+        "4px";
+
+
+      ctx.fillText(
+        "РЕШЕНО",
+        width / 2,
+        cardY + 100
+      );
+
+
+      /*
+       * Результат
+       */
+
+      const resultFontSize =
+        calculateResultFontSize(
+          ctx,
+          rouletteResult,
+          820
+        );
+
+
+      ctx.font =
+        `800 ${resultFontSize}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+
+
+      ctx.fillStyle =
+        "#111111";
+
+
+      drawCenteredWrappedText(
+        ctx,
+        rouletteResult,
+        width / 2,
+        cardY + 220,
+        820,
+        resultFontSize * 1.2,
+        "#111111",
+        resultFontSize,
+        5
+      );
+
+
+      /*
+       * Нижний блок
+       */
+
+      const footerY =
+        1110;
+
+
+      ctx.fillStyle =
+        "#f2f2f7";
+
+
+      ctx.fillRect(
+        0,
+        footerY,
+        width,
+        height - footerY
+      );
+
+
+      /*
+       * Бренд
+       */
+
+      ctx.textAlign =
+        "left";
+
+
+      ctx.fillStyle =
+        "#111111";
+
+
+      ctx.font =
+        "800 36px -apple-system, BlinkMacSystemFont, Arial, sans-serif";
+
+
+      ctx.fillText(
+        "🎲  Решатор",
+        70,
+        1180
+      );
+
+
+      /*
+       * Ссылка
+       */
+
+      ctx.fillStyle =
+        "#8e8e93";
+
+
+      ctx.font =
+        "500 25px -apple-system, BlinkMacSystemFont, Arial, sans-serif";
+
+
+      ctx.fillText(
+        "t.me/reshatorbykkchrv_bot/Reshator",
+        70,
+        1230
+      );
+
+
+      /*
+       * Маленький текст
+       */
+
+      ctx.fillStyle =
+        "#8e8e93";
+
+
+      ctx.font =
+        "500 22px -apple-system, BlinkMacSystemFont, Arial, sans-serif";
+
+
+      ctx.fillText(
+        "Не можешь решить? Решатор решит за тебя",
+        70,
+        1280
+      );
+
+
+      resolve(canvas);
+    }
   );
 }
 
 
 /* =========================================================
-   SHARING
+   CANVAS HELPERS
    ========================================================= */
 
-function getShareText() {
+function drawRoundedRect(
+  ctx,
+  x,
+  y,
+  width,
+  height,
+  radius
+) {
+
+  const r =
+    Math.min(
+      radius,
+      width / 2,
+      height / 2
+    );
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x + r,
+    y
+  );
+
+  ctx.lineTo(
+    x + width - r,
+    y
+  );
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y,
+    x + width,
+    y + r
+  );
+
+  ctx.lineTo(
+    x + width,
+    y + height - r
+  );
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - r,
+    y + height
+  );
+
+  ctx.lineTo(
+    x + r,
+    y + height
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y + height,
+    x,
+    y + height - r
+  );
+
+  ctx.lineTo(
+    x,
+    y + r
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y,
+    x + r,
+    y
+  );
+
+  ctx.closePath();
+}
+
+
+function drawWrappedText(
+  ctx,
+  text,
+  x,
+  y,
+  maxWidth,
+  lineHeight,
+  color,
+  fontSize,
+  maxLines = 2
+) {
+
+  ctx.fillStyle =
+    color;
+
+  ctx.font =
+    `700 ${fontSize}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+
+  ctx.textAlign =
+    "left";
+
+  const words =
+    String(text).split(" ");
+
+
+  const lines =
+    [];
+
+  let line =
+    "";
+
+
+  words.forEach(
+    (word) => {
+
+      const test =
+        line
+          ? `${line} ${word}`
+          : word;
+
+
+      if (
+        ctx.measureText(test).width >
+          maxWidth &&
+        line
+      ) {
+
+        lines.push(line);
+
+        line =
+          word;
+
+      } else {
+
+        line =
+          test;
+      }
+
+    }
+  );
+
+
+  if (line) {
+    lines.push(line);
+  }
+
+
+  const visibleLines =
+    lines.slice(
+      0,
+      maxLines
+    );
+
+
+  visibleLines.forEach(
+    (lineText, index) => {
+
+      ctx.fillText(
+        lineText,
+        x,
+        y +
+          index *
+            lineHeight
+      );
+
+    }
+  );
+}
+
+
+function drawCenteredWrappedText(
+  ctx,
+  text,
+  centerX,
+  startY,
+  maxWidth,
+  lineHeight,
+  color,
+  fontSize,
+  maxLines = 5
+) {
+
+  ctx.fillStyle =
+    color;
+
+  ctx.font =
+    `800 ${fontSize}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+
+  ctx.textAlign =
+    "center";
+
+
+  const words =
+    String(text).split(" ");
+
+
+  const lines =
+    [];
+
+  let line =
+    "";
+
+
+  words.forEach(
+    (word) => {
+
+      /*
+       * Если одно слово само по себе
+       * длиннее максимальной ширины,
+       * режем его на части.
+       */
+
+      if (
+        ctx.measureText(word).width >
+        maxWidth
+      ) {
+
+        if (line) {
+
+          lines.push(line);
+
+          line = "";
+        }
+
+
+        let chunk =
+          "";
+
+
+        for (
+          const char of word
+        ) {
+
+          const test =
+            chunk + char;
+
+
+          if (
+            ctx.measureText(test).width >
+              maxWidth &&
+            chunk
+          ) {
+
+            lines.push(chunk);
+
+            chunk =
+              char;
+
+          } else {
+
+            chunk =
+              test;
+          }
+
+        }
+
+
+        line =
+          chunk;
+
+        return;
+      }
+
+
+      const test =
+        line
+          ? `${line} ${word}`
+          : word;
+
+
+      if (
+        ctx.measureText(test).width >
+          maxWidth &&
+        line
+      ) {
+
+        lines.push(line);
+
+        line =
+          word;
+
+      } else {
+
+        line =
+          test;
+      }
+
+    }
+  );
+
+
+  if (line) {
+    lines.push(line);
+  }
+
+
+  const visibleLines =
+    lines.slice(
+      0,
+      maxLines
+    );
+
+
+  const totalHeight =
+    visibleLines.length *
+    lineHeight;
+
+
+  const firstY =
+    startY -
+    totalHeight / 2 +
+    lineHeight / 2;
+
+
+  visibleLines.forEach(
+    (lineText, index) => {
+
+      ctx.fillText(
+        lineText,
+        centerX,
+        firstY +
+          index *
+            lineHeight
+      );
+
+    }
+  );
+}
+
+
+function calculateResultFontSize(
+  ctx,
+  text,
+  maxWidth
+) {
+
+  let size =
+    82;
+
+
+  while (
+    size > 38
+  ) {
+
+    ctx.font =
+      `800 ${size}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+
+
+    if (
+      ctx.measureText(
+        text
+      ).width <= maxWidth
+    ) {
+
+      return size;
+    }
+
+
+    size -= 4;
+  }
+
+
+  return 38;
+}
+
+
+function getTelegramButtonColor() {
+
+  if (
+    tg?.themeParams?.button_color
+  ) {
+
+    return tg.themeParams.button_color;
+  }
+
+
+  return "#2481cc";
+}
+
+
+/* =========================================================
+   CANVAS → BLOB
+   ========================================================= */
+
+function canvasToBlob(canvas) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      canvas.toBlob(
+        (blob) => {
+
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(
+              new Error(
+                "Не удалось создать изображение"
+              )
+            );
+          }
+
+        },
+        "image/png",
+        1
+      );
+
+    }
+  );
+}
+
+
+/* =========================================================
+   ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ
+   ========================================================= */
+
+async function shareResult() {
 
   if (
     !rouletteCategory ||
     !rouletteResult
   ) {
-    return "";
-  }
 
-
-  const category =
-    options[rouletteCategory];
-
-
-  return [
-    "🎲 Решатор",
-    "",
-    `${category.icon} ${category.title}`,
-    "",
-    `👉 ${rouletteResult}`,
-    "",
-    `Реши сам: ${BOT_URL}`
-  ].join("\n");
-}
-
-
-async function shareResult() {
-
-  const text =
-    getShareText();
-
-
-  if (!text) {
     return;
   }
 
 
-  if (navigator.share) {
+  try {
 
-    try {
+    shareResultButton.disabled =
+      true;
+
+
+    shareResultButton.textContent =
+      "Готовим картинку...";
+
+
+    /*
+     * Генерируем PNG.
+     */
+
+    const canvas =
+      await createResultCanvas();
+
+
+    const blob =
+      await canvasToBlob(
+        canvas
+      );
+
+
+    const file =
+      new File(
+        [blob],
+        "reshator-result.png",
+        {
+          type: "image/png"
+        }
+      );
+
+
+    const shareText =
+      [
+        `${options[rouletteCategory].icon} ${options[rouletteCategory].title}`,
+        "",
+        `👉 ${rouletteResult}`,
+        "",
+        `Решатор: ${BOT_URL}`
+      ].join("\n");
+
+
+    /*
+     * Проверяем возможность поделиться
+     * именно файлом.
+     */
+
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [file]
+      })
+    ) {
 
       await navigator.share({
 
-        title:
-          "Решатор",
+        files: [file],
 
-        text,
-
-        url:
-          BOT_URL
+        text: shareText
 
       });
 
@@ -1986,44 +2818,131 @@ async function shareResult() {
       haptic("success");
 
       return;
-
-    } catch (error) {
-
-      if (
-        error?.name ===
-        "AbortError"
-      ) {
-        return;
-      }
-
     }
+
+
+    /*
+     * Запасной вариант:
+     * если Web Share Files недоступен,
+     * скачиваем PNG и копируем подпись.
+     */
+
+    downloadBlob(
+      blob,
+      "reshator-result.png"
+    );
+
+
+    await copyText(
+      shareText,
+      false
+    );
+
+
+    showToast(
+      "Картинка сохранена, подпись скопирована"
+    );
+
+
+  } catch (error) {
+
+    /*
+     * Пользователь мог просто закрыть
+     * системное меню Share.
+     */
+
+    if (
+      error?.name ===
+      "AbortError"
+    ) {
+
+      return;
+    }
+
+
+    console.error(
+      "Ошибка отправки результата:",
+      error
+    );
+
+
+    haptic("error");
+
+    showToast(
+      "Не удалось подготовить результат"
+    );
+
+  } finally {
+
+    shareResultButton.disabled =
+      false;
+
+    shareResultButton.textContent =
+      "📤 Поделиться решением";
   }
+}
 
 
-  await copyText(text);
+/* =========================================================
+   DOWNLOAD
+   ========================================================= */
 
-  showToast(
-    "Готово — результат скопирован"
+function downloadBlob(
+  blob,
+  filename
+) {
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+
+  link.href =
+    url;
+
+  link.download =
+    filename;
+
+
+  document.body.appendChild(
+    link
+  );
+
+
+  link.click();
+
+
+  link.remove();
+
+
+  setTimeout(
+    () => {
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    },
+    1000
   );
 }
 
 
-async function copyResult() {
+/* =========================================================
+   КОПИРОВАНИЕ
+   ========================================================= */
 
-  const text =
-    getShareText();
-
-
-  if (!text) {
-    return;
-  }
-
-
-  await copyText(text);
-}
-
-
-async function copyText(text) {
+async function copyText(
+  text,
+  showNotification = true
+) {
 
   try {
 
@@ -2034,9 +2953,16 @@ async function copyText(text) {
 
     haptic("success");
 
-    showToast(
-      "Скопировано"
-    );
+
+    if (showNotification) {
+
+      showToast(
+        "Скопировано"
+      );
+    }
+
+
+    return true;
 
   } catch {
 
@@ -2072,23 +2998,38 @@ async function copyText(text) {
       );
 
 
-      haptic("success");
+      textarea.remove();
 
-      showToast(
-        "Скопировано"
-      );
+
+      if (showNotification) {
+
+        haptic("success");
+
+        showToast(
+          "Скопировано"
+        );
+      }
+
+
+      return true;
 
     } catch {
 
-      haptic("error");
+      textarea.remove();
 
-      showToast(
-        "Не удалось скопировать"
-      );
+
+      if (showNotification) {
+
+        haptic("error");
+
+        showToast(
+          "Не удалось скопировать"
+        );
+      }
+
+
+      return false;
     }
-
-
-    textarea.remove();
   }
 }
 
@@ -2144,7 +3085,9 @@ editorNameInput.addEventListener(
     if (
       event.key === "Enter"
     ) {
+
       saveCategoryChanges();
+
     }
 
   }
@@ -2158,7 +3101,9 @@ editorIconInput.addEventListener(
     if (
       event.key === "Enter"
     ) {
+
       saveCategoryChanges();
+
     }
 
   }
@@ -2182,7 +3127,9 @@ newItemInput.addEventListener(
     if (
       event.key === "Enter"
     ) {
+
       addItem();
+
     }
 
   }
@@ -2250,7 +3197,9 @@ document
       if (
         event.key === "Enter"
       ) {
+
         createCategory();
+
       }
 
     }
@@ -2273,43 +3222,13 @@ rerollButton.addEventListener(
 );
 
 
-showResultButton.addEventListener(
+shareResultButton.addEventListener(
   "click",
-  openResult
+  shareResult
 );
 
 
-document
-  .getElementById(
-    "closeResultButton"
-  )
-  .addEventListener(
-    "click",
-    closeResult
-  );
-
-
-document
-  .getElementById(
-    "shareResultButton"
-  )
-  .addEventListener(
-    "click",
-    shareResult
-  );
-
-
-document
-  .getElementById(
-    "copyResultButton"
-  )
-  .addEventListener(
-    "click",
-    copyResult
-  );
-
-
-/* Закрытие модалок по затемнению */
+/* Затемнение рулетки */
 
 rouletteModal.addEventListener(
   "click",
@@ -2320,27 +3239,16 @@ rouletteModal.addEventListener(
         rouletteModal &&
       !isRolling
     ) {
+
       closeRoulette();
+
     }
 
   }
 );
 
 
-resultModal.addEventListener(
-  "click",
-  (event) => {
-
-    if (
-      event.target ===
-      resultModal
-    ) {
-      closeResult();
-    }
-
-  }
-);
-
+/* Затемнение создания категории */
 
 document
   .getElementById(
@@ -2356,7 +3264,9 @@ document
           "createCategoryModal"
         )
       ) {
+
         closeCreateCategory();
+
       }
 
     }
