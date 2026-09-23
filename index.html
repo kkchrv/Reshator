@@ -2,472 +2,183 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Решатор</title>
-
   <link rel="stylesheet" href="style.css" />
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-
 <body>
 
-  <!-- ==================== ГЛАВНЫЙ ЭКРАН ==================== -->
+  <main id="app">
 
-  <main id="homeScreen" class="screen active">
-
-    <header class="home-header">
-
-      <div>
-        <h1>Решатор</h1>
-
-        <p>
-          Не можешь решить? Решатор решит за тебя
-        </p>
-      </div>
-
-      <button
-        id="settingsButton"
-        class="icon-button"
-        aria-label="Настройки"
-      >
-        ⚙️
-      </button>
-
-    </header>
-
-    <section
-      id="categoriesContainer"
-      class="categories"
-    ></section>
-
-  </main>
-
-
-  <!-- ==================== НАСТРОЙКИ ==================== -->
-
-  <main id="settingsScreen" class="screen">
-
-    <header class="screen-header">
-
-      <button
-        id="settingsBackButton"
-        class="back-button"
-      >
-        ←
-      </button>
-
-      <h2>Настройки</h2>
-
-      <div class="header-spacer"></div>
-
-    </header>
-
-    <section class="settings-content">
-
-      <div class="settings-section">
-
-        <div class="section-heading">
-
-          <h3>Категории</h3>
-
-          <p>
-            Настройте категории и списки под себя
-          </p>
-
+    <!-- ==================== ГЛАВНЫЙ ЭКРАН ==================== -->
+    <section id="homeScreen" class="screen active">
+      <header class="home-header">
+        <div>
+          <h1>Решатор</h1>
+          <p>Не можешь решить? Решатор решит за тебя</p>
         </div>
-
-        <div
-          id="settingsCategories"
-          class="settings-categories"
-        ></div>
-
-        <button
-          id="createCategoryButton"
-          class="primary-button"
-        >
-          <span>＋</span>
-          Создать категорию
-        </button>
-
-      </div>
-
+        <button id="settingsButton" class="icon-button" aria-label="Настройки">⚙️</button>
+      </header>
+      <div id="categoriesContainer" class="categories"></div>
     </section>
 
-  </main>
+    <!-- ==================== НАСТРОЙКИ ==================== -->
+    <section id="settingsScreen" class="screen">
+      <header class="screen-header">
+        <button id="settingsBackButton" class="back-button" aria-label="Назад">←</button>
+        <h2>Настройки</h2>
+        <div class="header-spacer"></div>
+      </header>
 
-
-  <!-- ==================== РЕДАКТОР ==================== -->
-
-  <main id="editorScreen" class="screen">
-
-    <header class="screen-header">
-
-      <button
-        id="editorBackButton"
-        class="back-button"
-      >
-        ←
-      </button>
-
-      <h2>Редактор</h2>
-
-      <div class="header-spacer"></div>
-
-    </header>
-
-    <section class="editor-content">
-
-      <div class="category-editor">
-
-        <div class="category-editor-title">
-
-          <h3>Категория</h3>
-
-          <p>
-            Название и значок
-          </p>
-
-        </div>
-
-        <div class="category-editor-fields">
-
-          <div class="icon-input-wrapper">
-
-            <span>Иконка</span>
-
-            <input
-              id="editorIconInput"
-              class="editor-icon-input"
-              type="text"
-              maxlength="4"
-              autocomplete="off"
-            />
-
+      <div class="settings-content">
+        <div class="settings-section">
+          <div class="section-heading">
+            <h3>Категории</h3>
+            <p>Настройте категории и списки под себя</p>
           </div>
-
-          <div class="name-input-wrapper">
-
-            <span>Название</span>
-
-            <input
-              id="editorNameInput"
-              class="editor-name-input"
-              type="text"
-              maxlength="40"
-              autocomplete="off"
-              placeholder="Название категории"
-            />
-
-          </div>
-
-        </div>
-
-        <button
-          id="saveCategoryChangesButton"
-          class="save-category-button"
-        >
-          Сохранить изменения
-        </button>
-
-      </div>
-
-
-      <div class="editor-section">
-
-        <div class="editor-section-title">
-
-          <div>
-
-            <h3>Варианты</h3>
-
-            <p id="itemsCountText">
-              0 вариантов
-            </p>
-
-          </div>
-
-        </div>
-
-        <div class="selection-info">
-
-          <span>
-            Участвуют в рулетке
-          </span>
-
-          <strong id="activeItemsCount">
-            0 из 0
-          </strong>
-
-        </div>
-
-        <div
-          id="itemsList"
-          class="items-list"
-        ></div>
-
-        <div
-          id="emptyItemsState"
-          class="empty-items-state hidden"
-        >
-
-          <div class="empty-icon">
-            📝
-          </div>
-
-          <h3>
-            Здесь пока пусто
-          </h3>
-
-          <p>
-            Добавьте варианты, а затем выберите те,
-            которые должны участвовать в рулетке.
-          </p>
-
-        </div>
-
-        <div
-          id="noActiveItemsState"
-          class="no-active-items-state hidden"
-        >
-
-          <div class="empty-icon">
-            ☝️
-          </div>
-
-          <h3>
-            Ничего не выбрано
-          </h3>
-
-          <p>
-            Отметьте хотя бы один вариант,
-            чтобы Решатор мог сделать выбор.
-          </p>
-
-        </div>
-
-        <div class="add-item">
-
-          <input
-            id="newItemInput"
-            type="text"
-            maxlength="100"
-            placeholder="Добавить вариант..."
-            autocomplete="off"
-          />
-
-          <button
-            id="addItemButton"
-            class="add-item-button"
-          >
-            ＋
+          <div id="settingsCategories" class="settings-categories"></div>
+          <button id="createCategoryButton" class="primary-button">
+            <span>＋</span> Создать категорию
           </button>
+        </div>
+      </div>
+    </section>
 
+    <!-- ==================== РЕДАКТОР ==================== -->
+    <section id="editorScreen" class="screen">
+      <header class="screen-header">
+        <button id="editorBackButton" class="back-button" aria-label="Назад">←</button>
+        <h2>Редактор</h2>
+        <div class="header-spacer"></div>
+      </header>
+
+      <div class="editor-content">
+
+        <div class="category-editor">
+          <div class="category-editor-title">
+            <h3>Категория</h3>
+            <p>Название и значок</p>
+          </div>
+
+          <div class="category-editor-fields">
+            <label class="icon-input-wrapper">
+              <span>Иконка</span>
+              <input id="editorIconInput" class="editor-icon-input" type="text" maxlength="4" autocomplete="off" />
+            </label>
+
+            <label class="name-input-wrapper">
+              <span>Название</span>
+              <input id="editorNameInput" class="editor-name-input" type="text" maxlength="40" autocomplete="off" placeholder="Название категории" />
+            </label>
+          </div>
+
+          <button id="saveCategoryChangesButton" class="save-category-button">Сохранить изменения</button>
+        </div>
+
+        <div class="editor-section">
+          <div class="editor-section-title">
+            <div>
+              <h3>Варианты</h3>
+              <p id="itemsCountText">0 вариантов</p>
+            </div>
+          </div>
+
+          <div class="selection-info">
+            <span>Участвуют в рулетке</span>
+            <strong id="activeItemsCount">0 из 0</strong>
+          </div>
+
+          <div id="itemsList" class="items-list"></div>
+
+          <div id="emptyItemsState" class="empty-items-state hidden">
+            <div class="empty-icon">📝</div>
+            <h3>Здесь пока пусто</h3>
+            <p>Добавьте варианты, а затем выберите те, которые должны участвовать в рулетке.</p>
+          </div>
+
+          <div id="noActiveItemsState" class="no-active-items-state hidden">
+            <div class="empty-icon">☝️</div>
+            <h3>Ничего не выбрано</h3>
+            <p>Отметьте хотя бы один вариант, чтобы Решатор мог сделать выбор.</p>
+          </div>
+
+          <div class="add-item">
+            <input id="newItemInput" type="text" maxlength="100" placeholder="Добавить вариант..." autocomplete="off" />
+            <button id="addItemButton" class="add-item-button" aria-label="Добавить вариант">＋</button>
+          </div>
+        </div>
+
+        <div class="danger-section">
+          <button id="resetListButton" class="secondary-button danger-button">Сбросить список</button>
+          <button id="deleteCategoryButton" class="secondary-button danger-button hidden">Удалить категорию</button>
         </div>
 
       </div>
-
-
-      <div class="danger-section">
-
-        <button
-          id="resetListButton"
-          class="secondary-button danger-button"
-        >
-          Сбросить список
-        </button>
-
-        <button
-          id="deleteCategoryButton"
-          class="secondary-button danger-button hidden"
-        >
-          Удалить категорию
-        </button>
-
-      </div>
-
     </section>
 
   </main>
 
 
   <!-- ==================== РУЛЕТКА ==================== -->
-
-  <div
-    id="rouletteModal"
-    class="modal-overlay hidden"
-  >
-
-    <div class="roulette-modal">
-
-      <button
-        id="closeRouletteButton"
-        class="modal-close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
+  <div id="rouletteModal" class="modal-overlay hidden">
+    <div class="roulette-modal" role="dialog" aria-modal="true" aria-labelledby="rouletteCategoryTitle">
+      <button id="closeRouletteButton" class="modal-close-button" aria-label="Закрыть">×</button>
 
       <div class="roulette-header">
-
-        <div
-          id="rouletteCategoryIcon"
-          class="roulette-category-icon"
-        >
-          🎯
-        </div>
-
+        <div id="rouletteCategoryIcon" class="roulette-category-icon">🎯</div>
         <div>
-
-          <h2 id="rouletteCategoryTitle">
-            Решаем
-          </h2>
-
-          <p>
-            Случайный выбор
-          </p>
-
+          <h2 id="rouletteCategoryTitle">Решаем</h2>
+          <p>Случайный выбор</p>
         </div>
-
       </div>
 
       <div class="slot-wrapper">
-
         <div class="slot-highlight"></div>
-
-        <div
-          id="slotWindow"
-          class="slot-window"
-        >
-          <div
-            id="slotReel"
-            class="slot-reel"
-          ></div>
+        <div id="slotWindow" class="slot-window">
+          <div id="slotReel" class="slot-reel"></div>
         </div>
-
       </div>
 
-      <div
-        id="rouletteHint"
-        class="roulette-hint"
-      >
-        Крутим...
-      </div>
+      <div id="rouletteHint" class="roulette-hint" aria-live="polite">Крутим...</div>
 
-      <button
-        id="rerollButton"
-        class="primary-button roulette-button"
-      >
-        🎲 Решить ещё раз
-      </button>
-
-      <button
-        id="shareResultButton"
-        class="secondary-button result-button hidden"
-      >
-        📤 Поделиться решением
-      </button>
-
+      <button id="rerollButton" class="primary-button roulette-button">🎲 Решить ещё раз</button>
+      <button id="shareResultButton" class="secondary-button result-button hidden">📤 Поделиться решением</button>
     </div>
-
   </div>
 
 
   <!-- ==================== СОЗДАНИЕ КАТЕГОРИИ ==================== -->
-
-  <div
-    id="createCategoryModal"
-    class="modal-overlay hidden"
-  >
-
-    <div class="create-category-modal">
-
-      <button
-        id="closeCreateCategoryButton"
-        class="modal-close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
+  <div id="createCategoryModal" class="modal-overlay hidden">
+    <div class="create-category-modal" role="dialog" aria-modal="true" aria-labelledby="createCategoryTitle">
+      <button id="closeCreateCategoryButton" class="modal-close-button" aria-label="Закрыть">×</button>
 
       <div class="create-category-header">
-
-        <div class="create-category-icon">
-          ✨
-        </div>
-
-        <h2>
-          Новая категория
-        </h2>
-
-        <p>
-          Создайте свою категорию и добавьте в неё варианты.
-        </p>
-
+        <div class="create-category-icon">✨</div>
+        <h2 id="createCategoryTitle">Новая категория</h2>
+        <p>Создайте свою категорию и добавьте в неё варианты.</p>
       </div>
 
       <div class="create-category-fields">
-
         <div class="create-field">
-
-          <label for="newCategoryIcon">
-            Иконка
-          </label>
-
-          <input
-            id="newCategoryIcon"
-            type="text"
-            maxlength="4"
-            value="✨"
-            autocomplete="off"
-          />
-
+          <label for="newCategoryIcon">Иконка</label>
+          <input id="newCategoryIcon" type="text" maxlength="4" value="✨" autocomplete="off" />
         </div>
 
         <div class="create-field">
-
-          <label for="newCategoryName">
-            Название
-          </label>
-
-          <input
-            id="newCategoryName"
-            type="text"
-            maxlength="40"
-            placeholder="Например: Куда сходить?"
-            autocomplete="off"
-          />
-
+          <label for="newCategoryName">Название</label>
+          <input id="newCategoryName" type="text" maxlength="40" placeholder="Например: Куда сходить?" autocomplete="off" />
         </div>
-
       </div>
 
-      <button
-        id="confirmCreateCategoryButton"
-        class="primary-button"
-      >
-        Создать категорию
-      </button>
-
+      <button id="confirmCreateCategoryButton" class="primary-button">Создать категорию</button>
     </div>
-
   </div>
 
 
   <!-- ==================== УВЕДОМЛЕНИЕ ==================== -->
-
-  <div
-    id="toast"
-    class="toast hidden"
-  ></div>
-
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="script.js"></script>
-
 </body>
 </html>
