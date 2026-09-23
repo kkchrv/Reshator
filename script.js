@@ -1,2085 +1,2376 @@
-// ====================
-// TELEGRAM
-// ====================
+/* =========================================================
+   РЕШАТОР
+   ========================================================= */
 
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
 
-tg.ready();
-tg.expand();
-
-
-// ====================
-// СТАНДАРТНЫЕ КАТЕГОРИИ
-// ====================
-
-const defaultOptions = {
-
-    food: {
-        icon: "🍔",
-        title: "Что поесть?",
-        list: [
-            "Пицца",
-            "Бургер",
-            "Суши",
-            "Паста",
-            "Шаурма",
-            "Рамен",
-            "Вкусная пита"
-        ]
-    },
-
-    watch: {
-        icon: "🍿",
-        title: "Что посмотреть?",
-        list: [
-            "Интерстеллар",
-            "Начало",
-            "Во все тяжкие",
-            "Унесённые призраками",
-            "Шрек",
-            "Джентльмены"
-        ]
-    },
-
-    game: {
-        icon: "🎮",
-        title: "Во что поиграть?",
-        list: [
-            "Ведьмак 3",
-            "Minecraft",
-            "GTA V",
-            "Cyberpunk 2077",
-            "Elden Ring",
-            "Hades"
-        ]
-    },
-
-    love: {
-        icon: "✨",
-        title: "Что делать вдвоём?",
-        list: [
-            "Пойти на пикник",
-            "Приготовить ужин вместе",
-            "Поиграть в настолки",
-            "Сходить в кино",
-            "Прогулка в парке"
-        ]
-    }
-
-};
-
-
-// ====================
-// ЗАГРУЗКА
-// ====================
-
-const savedOptions =
-    localStorage.getItem(
-        "reshatorOptions"
-    );
-
-let options;
-
-if (savedOptions) {
-
-    try {
-
-        options =
-            JSON.parse(
-                savedOptions
-            );
-
-    } catch (error) {
-
-        options =
-            JSON.parse(
-                JSON.stringify(
-                    defaultOptions
-                )
-            );
-
-    }
-
-} else {
-
-    options =
-        JSON.parse(
-            JSON.stringify(
-                defaultOptions
-            )
-        );
-
+if (tg) {
+  tg.ready();
+  tg.expand();
 }
 
 
-// ====================
-// МИГРАЦИЯ
-// ====================
+/* =========================================================
+   КОНСТАНТЫ
+   ========================================================= */
 
-Object.keys(options).forEach(
-    category => {
+const STORAGE_KEY = "reshatorOptions";
+const STORAGE_VERSION = 3;
 
-        if (!options[category].icon) {
+const BOT_URL =
+  "https://t.me/reshatorbykkchrv_bot/Reshator";
 
-            options[category].icon =
-                "✨";
 
-        }
+const defaultOptions = {
 
-        if (!options[category].title) {
+  food: {
+    icon: "🍔",
+    title: "Что поесть?",
 
-            options[category].title =
-                category;
+    items: [
+      "Пицца",
+      "Суши",
+      "Бургер",
+      "Паста",
+      "Шаурма",
+      "Стейк"
+    ]
+  },
 
-        }
+  movies: {
+    icon: "🍿",
+    title: "Что посмотреть?",
 
-        if (
-            !Array.isArray(
-                options[category].list
+    items: [
+      "Фильм",
+      "Сериал",
+      "Аниме",
+      "Документалка"
+    ]
+  },
+
+  games: {
+    icon: "🎮",
+    title: "Во что поиграть?",
+
+    items: [
+      "Dota 2",
+      "CS2",
+      "EA FC",
+      "House Flipper"
+    ]
+  },
+
+  couple: {
+    icon: "✨",
+    title: "Что делать вдвоем?",
+
+    items: [
+      "Сходить в кино",
+      "Погулять",
+      "Заказать еду",
+      "Сыграть во что-нибудь",
+      "Посмотреть сериал"
+    ]
+  }
+};
+
+
+/* =========================================================
+   СОСТОЯНИЕ
+   ========================================================= */
+
+let options = {};
+
+let currentScreen = "home";
+
+let editorCategory = null;
+
+let rouletteCategory = null;
+let rouletteResult = null;
+
+let isRolling = false;
+
+let previousResults = {};
+
+let toastTimer = null;
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const homeScreen =
+  document.getElementById("homeScreen");
+
+const settingsScreen =
+  document.getElementById("settingsScreen");
+
+const editorScreen =
+  document.getElementById("editorScreen");
+
+const categoriesContainer =
+  document.getElementById("categoriesContainer");
+
+const settingsCategories =
+  document.getElementById("settingsCategories");
+
+const itemsList =
+  document.getElementById("itemsList");
+
+const emptyItemsState =
+  document.getElementById("emptyItemsState");
+
+const noActiveItemsState =
+  document.getElementById("noActiveItemsState");
+
+const itemsCountText =
+  document.getElementById("itemsCountText");
+
+const activeItemsCount =
+  document.getElementById("activeItemsCount");
+
+const editorIconInput =
+  document.getElementById("editorIconInput");
+
+const editorNameInput =
+  document.getElementById("editorNameInput");
+
+const newItemInput =
+  document.getElementById("newItemInput");
+
+const rouletteModal =
+  document.getElementById("rouletteModal");
+
+const rouletteCategoryIcon =
+  document.getElementById("rouletteCategoryIcon");
+
+const rouletteCategoryTitle =
+  document.getElementById("rouletteCategoryTitle");
+
+const rouletteHint =
+  document.getElementById("rouletteHint");
+
+const slotReel =
+  document.getElementById("slotReel");
+
+const rerollButton =
+  document.getElementById("rerollButton");
+
+const showResultButton =
+  document.getElementById("showResultButton");
+
+const resultModal =
+  document.getElementById("resultModal");
+
+const resultIcon =
+  document.getElementById("resultIcon");
+
+const resultCategory =
+  document.getElementById("resultCategory");
+
+const resultText =
+  document.getElementById("resultText");
+
+const toast =
+  document.getElementById("toast");
+
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+
+function cloneDefaults() {
+  return JSON.parse(
+    JSON.stringify(defaultOptions)
+  );
+}
+
+
+function haptic(type = "light") {
+  try {
+
+    if (!tg?.HapticFeedback) {
+      return;
+    }
+
+    if (type === "success") {
+      tg.HapticFeedback.notificationOccurred(
+        "success"
+      );
+
+    } else if (type === "error") {
+      tg.HapticFeedback.notificationOccurred(
+        "error"
+      );
+
+    } else {
+      tg.HapticFeedback.impactOccurred(type);
+    }
+
+  } catch {
+    // Ничего не делаем
+  }
+}
+
+
+function showToast(message) {
+  clearTimeout(toastTimer);
+
+  toast.textContent = message;
+
+  toast.classList.remove("hidden");
+
+  toastTimer = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2200);
+}
+
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+function isCustomCategory(category) {
+  return !Object.prototype.hasOwnProperty.call(
+    defaultOptions,
+    category
+  );
+}
+
+
+function categoryCountText(count) {
+
+  if (count === 0) {
+    return "Нет вариантов";
+  }
+
+  if (count === 1) {
+    return "1 вариант";
+  }
+
+  if (count >= 2 && count <= 4) {
+    return `${count} варианта`;
+  }
+
+  return `${count} вариантов`;
+}
+
+
+function getActiveItems(category) {
+
+  if (!options[category]) {
+    return [];
+  }
+
+  return options[category].items
+    .filter((item) => item.enabled !== false)
+    .map((item) => item.text);
+}
+
+
+function normalizeItems(items) {
+
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  const result = [];
+
+  const seen = new Set();
+
+  items.forEach((item) => {
+
+    /*
+     * Новый формат:
+     * {
+     *   text: "Пицца",
+     *   enabled: true
+     * }
+     */
+
+    if (
+      item &&
+      typeof item === "object" &&
+      typeof item.text === "string"
+    ) {
+
+      const text = item.text.trim();
+
+      if (!text) {
+        return;
+      }
+
+      const key = text.toLowerCase();
+
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+
+      result.push({
+        text,
+        enabled: item.enabled !== false
+      });
+
+      return;
+    }
+
+
+    /*
+     * Старый формат:
+     * "Пицца"
+     *
+     * Старые варианты автоматически включаются.
+     */
+
+    if (typeof item === "string") {
+
+      const text = item.trim();
+
+      if (!text) {
+        return;
+      }
+
+      const key = text.toLowerCase();
+
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+
+      result.push({
+        text,
+        enabled: true
+      });
+    }
+
+  });
+
+  return result;
+}
+
+
+/* =========================================================
+   LOCAL STORAGE
+   ========================================================= */
+
+function normalizeOptions(data) {
+
+  const normalized = {};
+
+  if (!data || typeof data !== "object") {
+    return cloneDefaults();
+  }
+
+  Object.keys(data).forEach((category) => {
+
+    const value = data[category];
+
+    if (!value || typeof value !== "object") {
+      return;
+    }
+
+    const icon =
+      typeof value.icon === "string" &&
+      value.icon.trim()
+        ? value.icon.trim()
+        : "✨";
+
+    const title =
+      typeof value.title === "string" &&
+      value.title.trim()
+        ? value.title.trim()
+        : "Категория";
+
+    normalized[category] = {
+      icon,
+      title,
+      items: normalizeItems(value.items)
+    };
+
+  });
+
+  return normalized;
+}
+
+
+function mergeWithDefaults(savedOptions) {
+
+  const result = {};
+
+  const saved =
+    normalizeOptions(savedOptions);
+
+
+  /*
+   * Стандартные категории сохраняются,
+   * даже если пользователь менял их содержимое.
+   */
+
+  Object.keys(defaultOptions).forEach(
+    (category) => {
+
+      if (saved[category]) {
+
+        result[category] = {
+
+          icon:
+            saved[category].icon ||
+            defaultOptions[category].icon,
+
+          title:
+            saved[category].title ||
+            defaultOptions[category].title,
+
+          items:
+            saved[category].items
+
+        };
+
+      } else {
+
+        result[category] = {
+
+          icon:
+            defaultOptions[category].icon,
+
+          title:
+            defaultOptions[category].title,
+
+          items:
+            normalizeItems(
+              defaultOptions[category].items
             )
-        ) {
 
-            options[category].list = [];
+        };
 
-        }
+      }
 
     }
-);
+  );
+
+
+  /*
+   * Пользовательские категории сохраняются.
+   */
+
+  Object.keys(saved).forEach(
+    (category) => {
+
+      if (!result[category]) {
+        result[category] = saved[category];
+      }
+
+    }
+  );
+
+  return result;
+}
+
+
+function loadOptions() {
+
+  try {
+
+    const raw =
+      localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+
+      options = cloneDefaults();
+
+      /*
+       * Преобразуем дефолтные массивы строк
+       * в новый формат объектов.
+       */
+
+      options = normalizeOptions(options);
+
+      saveOptions();
+
+      return;
+    }
+
+
+    const parsed = JSON.parse(raw);
+
+
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      parsed.version === STORAGE_VERSION
+    ) {
+
+      options =
+        mergeWithDefaults(parsed.data);
+
+    } else {
+
+      /*
+       * Миграция:
+       *
+       * версия 1:
+       * items = ["Пицца", "Суши"]
+       *
+       * версия 2:
+       * items = ["Пицца", "Суши"]
+       *
+       * версия 3:
+       * items = [
+       *   { text: "Пицца", enabled: true }
+       * ]
+       */
+
+      options =
+        mergeWithDefaults(
+          parsed?.data || parsed
+        );
+
+      saveOptions();
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Ошибка загрузки данных:",
+      error
+    );
+
+    options =
+      normalizeOptions(
+        cloneDefaults()
+      );
+
+    saveOptions();
+  }
+}
 
 
 function saveOptions() {
 
-    localStorage.setItem(
-        "reshatorOptions",
-        JSON.stringify(
-            options
-        )
-    );
+  localStorage.setItem(
+    STORAGE_KEY,
 
+    JSON.stringify({
+      version: STORAGE_VERSION,
+      data: options
+    })
+  );
 }
 
 
-saveOptions();
+/* =========================================================
+   ЭКРАНЫ
+   ========================================================= */
+
+function showScreen(screen) {
+
+  currentScreen = screen;
+
+  homeScreen.classList.remove("active");
+  settingsScreen.classList.remove("active");
+  editorScreen.classList.remove("active");
 
 
-// ====================
-// ПОЛЬЗОВАТЕЛЬСКАЯ КАТЕГОРИЯ
-// ====================
+  if (screen === "home") {
+    homeScreen.classList.add("active");
+  }
 
-function isCustomCategory(category) {
+  if (screen === "settings") {
+    settingsScreen.classList.add("active");
+  }
 
-    return !Object.prototype.hasOwnProperty.call(
-        defaultOptions,
-        category
-    );
+  if (screen === "editor") {
+    editorScreen.classList.add("active");
+  }
 
+
+  window.scrollTo({
+    top: 0,
+    behavior: "instant"
+  });
 }
 
 
-// ====================
-// ЭЛЕМЕНТЫ
-// ====================
-
-const homeScreen =
-    document.getElementById(
-        "homeScreen"
-    );
-
-const settingsScreen =
-    document.getElementById(
-        "settingsScreen"
-    );
-
-const editorScreen =
-    document.getElementById(
-        "editorScreen"
-    );
-
-const choices =
-    document.getElementById(
-        "choices"
-    );
-
-const settingsList =
-    document.getElementById(
-        "settingsList"
-    );
-
-const settingsButton =
-    document.getElementById(
-        "settingsButton"
-    );
-
-const backButton =
-    document.getElementById(
-        "backButton"
-    );
-
-const editorBackButton =
-    document.getElementById(
-        "editorBackButton"
-    );
-
-
-// ====================
-// РЕДАКТОР КАТЕГОРИИ
-// ====================
-
-const editorIconInput =
-    document.getElementById(
-        "editorIconInput"
-    );
-
-const editorNameInput =
-    document.getElementById(
-        "editorNameInput"
-    );
-
-const saveCategoryChangesButton =
-    document.getElementById(
-        "saveCategoryChangesButton"
-    );
-
-
-// ====================
-// РЕДАКТОР ПОЗИЦИЙ
-// ====================
-
-const itemsList =
-    document.getElementById(
-        "itemsList"
-    );
-
-const newItemInput =
-    document.getElementById(
-        "newItemInput"
-    );
-
-const addItemButton =
-    document.getElementById(
-        "addItemButton"
-    );
-
-const resetListButton =
-    document.getElementById(
-        "resetListButton"
-    );
+/* =========================================================
+   ГЛАВНЫЙ ЭКРАН
+   ========================================================= */
 
-const deleteCategoryButton =
-    document.getElementById(
-        "deleteCategoryButton"
-    );
+function renderHome() {
 
+  categoriesContainer.innerHTML = "";
 
-// ====================
-// РУЛЕТКА
-// ====================
 
-const rouletteModal =
-    document.getElementById(
-        "rouletteModal"
-    );
+  Object.entries(options).forEach(
+    ([category, data]) => {
 
-const closeRouletteButton =
-    document.getElementById(
-        "closeRouletteButton"
-    );
+      const button =
+        document.createElement("button");
 
-const rouletteCategory =
-    document.getElementById(
-        "rouletteCategory"
-    );
+      button.className =
+        "category-button";
 
-const slotTrack =
-    document.getElementById(
-        "slotTrack"
-    );
 
-const rerollButton =
-    document.getElementById(
-        "rerollButton"
-    );
+      const activeCount =
+        data.items.filter(
+          (item) =>
+            item.enabled !== false
+        ).length;
 
-const shareResultButton =
-    document.getElementById(
-        "shareResultButton"
-    );
 
+      button.innerHTML = `
 
-// ====================
-// СОЗДАНИЕ КАТЕГОРИИ
-// ====================
+        <div class="category-icon">
+          ${escapeHtml(data.icon)}
+        </div>
 
-const createCategoryButton =
-    document.getElementById(
-        "createCategoryButton"
-    );
+        <div class="category-info">
 
-const categoryModal =
-    document.getElementById(
-        "categoryModal"
-    );
+          <div class="category-title">
+            ${escapeHtml(data.title)}
+          </div>
 
-const categoryIconInput =
-    document.getElementById(
-        "categoryIconInput"
-    );
+          <div class="category-count">
+            ${activeCount > 0
+              ? `${activeCount} участвует`
+              : "Ничего не выбрано"}
+          </div>
 
-const categoryNameInput =
-    document.getElementById(
-        "categoryNameInput"
-    );
+        </div>
 
-const cancelCategoryButton =
-    document.getElementById(
-        "cancelCategoryButton"
-    );
+        <div class="category-arrow">
+          ›
+        </div>
+      `;
 
-const saveCategoryButton =
-    document.getElementById(
-        "saveCategoryButton"
-    );
 
+      button.addEventListener(
+        "click",
+        () => openRoulette(category)
+      );
 
-// ====================
-// СОСТОЯНИЕ
-// ====================
 
-let currentCategory = null;
+      categoriesContainer.appendChild(button);
 
-let editorCategory = null;
-
-let isRolling = false;
-
-let previousResult = null;
-
-let currentResult = null;
-
-
-// ====================
-// ГЛАВНЫЕ КАТЕГОРИИ
-// ====================
-
-function renderCategories() {
-
-    choices.innerHTML = "";
-
-    Object.keys(options).forEach(
-        category => {
-
-            const data =
-                options[category];
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-            button.className =
-                "choice";
-
-
-            const title =
-                document.createElement(
-                    "span"
-                );
-
-            title.textContent =
-                data.title;
-
-
-            const icon =
-                document.createElement(
-                    "span"
-                );
-
-            icon.className =
-                "choice-icon";
-
-            icon.textContent =
-                data.icon;
-
-
-            button.appendChild(
-                title
-            );
-
-            button.appendChild(
-                icon
-            );
-
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    openRoulette(
-                        category
-                    );
-
-                    startRoulette(
-                        category,
-                        false
-                    );
-
-                }
-            );
-
-
-            choices.appendChild(
-                button
-            );
-
-        }
-    );
-
+    }
+  );
 }
 
 
-// ====================
-// НАСТРОЙКИ
-// ====================
+/* =========================================================
+   НАСТРОЙКИ
+   ========================================================= */
 
 function renderSettings() {
 
-    settingsList.innerHTML = "";
-
-    Object.keys(options).forEach(
-        category => {
-
-            const data =
-                options[category];
+  settingsCategories.innerHTML = "";
 
 
-            const button =
-                document.createElement(
-                    "button"
-                );
+  Object.entries(options).forEach(
+    ([category, data]) => {
 
-            button.className =
-                "settings-item";
+      const button =
+        document.createElement("button");
 
-
-            const title =
-                document.createElement(
-                    "span"
-                );
-
-            title.textContent =
-                `${data.icon} ${data.title}`;
+      button.className =
+        "settings-category";
 
 
-            const arrow =
-                document.createElement(
-                    "span"
-                );
-
-            arrow.textContent =
-                "›";
+      const activeCount =
+        data.items.filter(
+          (item) =>
+            item.enabled !== false
+        ).length;
 
 
-            button.appendChild(
-                title
-            );
+      button.innerHTML = `
 
-            button.appendChild(
-                arrow
-            );
+        <div class="settings-category-icon">
+          ${escapeHtml(data.icon)}
+        </div>
+
+        <div class="settings-category-info">
+
+          <div class="settings-category-title">
+            ${escapeHtml(data.title)}
+          </div>
+
+          <div class="settings-category-count">
+            ${activeCount} из ${data.items.length} участвует
+          </div>
+
+        </div>
+
+        <div class="settings-category-arrow">
+          ›
+        </div>
+      `;
 
 
-            button.addEventListener(
-                "click",
-                function() {
-
-                    openEditor(
-                        category
-                    );
-
-                }
-            );
+      button.addEventListener(
+        "click",
+        () => openEditor(category)
+      );
 
 
-            settingsList.appendChild(
-                button
-            );
+      settingsCategories.appendChild(button);
 
-        }
-    );
-
+    }
+  );
 }
 
-
-// ====================
-// ОТКРЫТЬ НАСТРОЙКИ
-// ====================
 
 function openSettings() {
 
-    homeScreen.classList.add(
-        "hidden"
-    );
+  renderSettings();
 
-    editorScreen.classList.add(
-        "hidden"
-    );
-
-    settingsScreen.classList.remove(
-        "hidden"
-    );
-
-    renderSettings();
-
+  showScreen("settings");
 }
 
-
-// ====================
-// ЗАКРЫТЬ НАСТРОЙКИ
-// ====================
 
 function closeSettings() {
 
-    settingsScreen.classList.add(
-        "hidden"
-    );
-
-    homeScreen.classList.remove(
-        "hidden"
-    );
-
-    renderCategories();
-
+  showScreen("home");
 }
 
 
-// ====================
-// ОТКРЫТЬ РЕДАКТОР
-// ====================
+/* =========================================================
+   РЕДАКТОР
+   ========================================================= */
 
 function openEditor(category) {
 
-    editorCategory =
-        category;
+  if (!options[category]) {
+    return;
+  }
+
+  editorCategory = category;
 
 
-    const data =
-        options[category];
+  editorIconInput.value =
+    options[category].icon;
+
+  editorNameInput.value =
+    options[category].title;
 
 
-    editorIconInput.value =
-        data.icon;
-
-    editorNameInput.value =
-        data.title;
+  renderEditorItems();
 
 
-    settingsScreen.classList.add(
-        "hidden"
+  const deleteButton =
+    document.getElementById(
+      "deleteCategoryButton"
     );
 
-    editorScreen.classList.remove(
-        "hidden"
+  const resetButton =
+    document.getElementById(
+      "resetListButton"
     );
 
 
-    // Стандартная категория
+  if (isCustomCategory(category)) {
 
-    if (
-        isCustomCategory(category)
-    ) {
+    deleteButton.classList.remove(
+      "hidden"
+    );
 
-        deleteCategoryButton.classList.remove(
-            "hidden"
-        );
+    resetButton.classList.add(
+      "hidden"
+    );
 
-        resetListButton.classList.add(
-            "hidden"
-        );
+  } else {
 
-    }
+    deleteButton.classList.add(
+      "hidden"
+    );
 
-    // Пользовательская категория
+    resetButton.classList.remove(
+      "hidden"
+    );
 
-    else {
-
-        deleteCategoryButton.classList.add(
-            "hidden"
-        );
-
-        resetListButton.classList.remove(
-            "hidden"
-        );
-
-    }
+  }
 
 
-    renderItems();
-
+  showScreen("editor");
 }
 
-
-// ====================
-// СОХРАНИТЬ НАЗВАНИЕ
-// ====================
-
-function saveCategoryChanges() {
-
-    if (!editorCategory) {
-        return;
-    }
-
-
-    let icon =
-        editorIconInput.value.trim();
-
-    let title =
-        editorNameInput.value.trim();
-
-
-    if (!icon) {
-        icon = "✨";
-    }
-
-
-    if (!title) {
-
-        editorNameInput.focus();
-
-        return;
-
-    }
-
-
-    options[
-        editorCategory
-    ].icon =
-        icon;
-
-    options[
-        editorCategory
-    ].title =
-        title;
-
-
-    saveOptions();
-
-
-    // Обновляем интерфейс
-
-    renderCategories();
-
-    renderSettings();
-
-
-    // Если редактор всё ещё открыт
-
-    editorIconInput.value =
-        icon;
-
-    editorNameInput.value =
-        title;
-
-
-    // Небольшая вибрация
-    // в Telegram
-
-    if (
-        tg.HapticFeedback
-    ) {
-
-        tg.HapticFeedback
-            .notificationOccurred(
-                "success"
-            );
-
-    }
-
-}
-
-
-saveCategoryChangesButton.addEventListener(
-    "click",
-    saveCategoryChanges
-);
-
-
-// ====================
-// ENTER В НАЗВАНИИ
-// ====================
-
-editorNameInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key ===
-            "Enter"
-        ) {
-
-            saveCategoryChanges();
-
-        }
-
-    }
-);
-
-
-// ====================
-// ЗАКРЫТЬ РЕДАКТОР
-// ====================
 
 function closeEditor() {
 
-    editorScreen.classList.add(
-        "hidden"
-    );
+  editorCategory = null;
 
-    settingsScreen.classList.remove(
-        "hidden"
-    );
-
-    newItemInput.value = "";
-
-    renderSettings();
-
+  showScreen("settings");
 }
 
 
-// ====================
-// ПОЗИЦИИ КАТЕГОРИИ
-// ====================
+function saveCategoryChanges() {
 
-function renderItems() {
-
-    itemsList.innerHTML = "";
-
-
-    if (!editorCategory) {
-        return;
-    }
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
 
 
-    const list =
-        options[
-            editorCategory
-        ].list;
+  const icon =
+    editorIconInput.value.trim() ||
+    "✨";
+
+  const title =
+    editorNameInput.value.trim();
 
 
-    list.forEach(
-        (item, index) => {
+  if (!title) {
 
-            const itemElement =
-                document.createElement(
-                    "div"
-                );
+    haptic("error");
 
-            itemElement.className =
-                "list-item";
+    showToast(
+      "Введите название категории"
+    );
 
+    editorNameInput.focus();
 
-            // Поле
-
-            const input =
-                document.createElement(
-                    "input"
-                );
-
-            input.type =
-                "text";
-
-            input.value =
-                item;
-
-            input.maxLength =
-                100;
+    return;
+  }
 
 
-            input.addEventListener(
-                "change",
-                function() {
+  options[editorCategory].icon =
+    icon;
 
-                    const newValue =
-                        input.value.trim();
-
-
-                    if (!newValue) {
-
-                        input.value =
-                            options[
-                                editorCategory
-                            ].list[index];
-
-                        return;
-
-                    }
+  options[editorCategory].title =
+    title;
 
 
-                    options[
-                        editorCategory
-                    ].list[index] =
-                        newValue;
+  saveOptions();
 
 
-                    saveOptions();
-
-                }
-            );
-
-
-            // Крестик
-
-            const deleteButton =
-                document.createElement(
-                    "button"
-                );
-
-            deleteButton.type =
-                "button";
-
-            deleteButton.className =
-                "delete-item-button";
-
-            deleteButton.textContent =
-                "×";
+  renderHome();
+  renderSettings();
+  renderEditorItems();
 
 
-            deleteButton.setAttribute(
-                "aria-label",
-                `Удалить ${item}`
-            );
+  haptic("success");
+
+  showToast(
+    "Изменения сохранены"
+  );
+}
 
 
-            deleteButton.addEventListener(
-                "click",
-                function() {
+/* =========================================================
+   РЕДАКТИРОВАНИЕ СПИСКА
+   ========================================================= */
 
-                    options[
-                        editorCategory
-                    ].list.splice(
-                        index,
-                        1
-                    );
+function renderEditorItems() {
 
-
-                    saveOptions();
-
-                    renderItems();
-
-                }
-            );
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
 
 
-            itemElement.appendChild(
-                input
-            );
-
-            itemElement.appendChild(
-                deleteButton
-            );
+  const items =
+    options[editorCategory].items;
 
 
-            itemsList.appendChild(
-                itemElement
-            );
+  const activeCount =
+    items.filter(
+      (item) =>
+        item.enabled !== false
+    ).length;
+
+
+  itemsList.innerHTML = "";
+
+
+  itemsCountText.textContent =
+    categoryCountText(
+      items.length
+    );
+
+
+  activeItemsCount.textContent =
+    `${activeCount} из ${items.length}`;
+
+
+  if (items.length === 0) {
+
+    emptyItemsState.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    emptyItemsState.classList.add(
+      "hidden"
+    );
+  }
+
+
+  if (
+    items.length > 0 &&
+    activeCount === 0
+  ) {
+
+    noActiveItemsState.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    noActiveItemsState.classList.add(
+      "hidden"
+    );
+  }
+
+
+  items.forEach(
+    (item, index) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "list-item";
+
+
+      if (item.enabled === false) {
+        row.classList.add(
+          "inactive"
+        );
+      }
+
+
+      /*
+       * Чекбокс участия
+       */
+
+      const checkbox =
+        document.createElement(
+          "input"
+        );
+
+      checkbox.type =
+        "checkbox";
+
+      checkbox.className =
+        "list-item-checkbox";
+
+      checkbox.checked =
+        item.enabled !== false;
+
+
+      checkbox.setAttribute(
+        "aria-label",
+        "Участвует в рулетке"
+      );
+
+
+      checkbox.addEventListener(
+        "change",
+        () => {
+
+          item.enabled =
+            checkbox.checked;
+
+          saveOptions();
+
+          renderEditorItems();
+          renderHome();
+          renderSettings();
+
+          haptic("light");
+        }
+      );
+
+
+      /*
+       * Текст варианта
+       */
+
+      const input =
+        document.createElement(
+          "input"
+        );
+
+      input.className =
+        "list-item-input";
+
+      input.type = "text";
+      input.maxLength = 100;
+
+      input.value =
+        item.text;
+
+
+      input.addEventListener(
+        "change",
+        () => {
+          updateItem(
+            index,
+            input.value
+          );
+        }
+      );
+
+
+      input.addEventListener(
+        "keydown",
+        (event) => {
+
+          if (
+            event.key === "Enter"
+          ) {
+            input.blur();
+          }
 
         }
-    );
+      );
 
+
+      /*
+       * Удаление варианта
+       */
+
+      const deleteButton =
+        document.createElement(
+          "button"
+        );
+
+      deleteButton.type =
+        "button";
+
+      deleteButton.className =
+        "list-item-delete";
+
+      deleteButton.innerHTML =
+        "×";
+
+      deleteButton.setAttribute(
+        "aria-label",
+        "Удалить вариант"
+      );
+
+
+      deleteButton.addEventListener(
+        "click",
+        () => {
+          deleteItem(index);
+        }
+      );
+
+
+      row.appendChild(
+        checkbox
+      );
+
+      row.appendChild(
+        input
+      );
+
+      row.appendChild(
+        deleteButton
+      );
+
+
+      itemsList.appendChild(
+        row
+      );
+
+    }
+  );
 }
 
 
-// ====================
-// ДОБАВИТЬ ПОЗИЦИЮ
-// ====================
+/* =========================================================
+   ИЗМЕНЕНИЕ ВАРИАНТА
+   ========================================================= */
+
+function updateItem(index, value) {
+
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
+
+
+  const cleaned =
+    value.trim();
+
+
+  if (!cleaned) {
+
+    renderEditorItems();
+
+    return;
+  }
+
+
+  const duplicate =
+    options[editorCategory].items.some(
+      (item, itemIndex) =>
+        itemIndex !== index &&
+        item.text.toLowerCase() ===
+          cleaned.toLowerCase()
+    );
+
+
+  if (duplicate) {
+
+    haptic("error");
+
+    showToast(
+      "Такой вариант уже есть"
+    );
+
+    renderEditorItems();
+
+    return;
+  }
+
+
+  options[editorCategory]
+    .items[index]
+    .text = cleaned;
+
+
+  saveOptions();
+
+  renderEditorItems();
+
+  renderHome();
+
+  renderSettings();
+}
+
+
+/* =========================================================
+   ДОБАВЛЕНИЕ
+   ========================================================= */
 
 function addItem() {
 
-    const value =
-        newItemInput.value.trim();
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
 
 
-    if (!value) {
-        return;
-    }
+  const value =
+    newItemInput.value.trim();
 
 
-    options[
-        editorCategory
-    ].list.push(
-        value
+  if (!value) {
+    return;
+  }
+
+
+  const duplicate =
+    options[editorCategory].items.some(
+      (item) =>
+        item.text.toLowerCase() ===
+        value.toLowerCase()
     );
 
 
-    saveOptions();
+  if (duplicate) {
+
+    haptic("error");
+
+    showToast(
+      "Такой вариант уже есть"
+    );
+
+    newItemInput.select();
+
+    return;
+  }
 
 
-    newItemInput.value = "";
+  /*
+   * Новый вариант по умолчанию
+   * сразу участвует в рулетке.
+   */
 
-    renderItems();
+  options[editorCategory].items.push({
+    text: value,
+    enabled: true
+  });
 
-    newItemInput.focus();
 
+  saveOptions();
+
+
+  newItemInput.value = "";
+
+
+  renderEditorItems();
+  renderHome();
+  renderSettings();
+
+
+  haptic("light");
 }
 
 
-addItemButton.addEventListener(
-    "click",
-    addItem
-);
+/* =========================================================
+   УДАЛЕНИЕ
+   ========================================================= */
+
+function deleteItem(index) {
+
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
 
 
-newItemInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key ===
-            "Enter"
-        ) {
-
-            addItem();
-
-        }
-
-    }
-);
+  const items =
+    options[editorCategory].items;
 
 
-// ====================
-// СБРОС СПИСКА
-// ====================
-
-resetListButton.addEventListener(
-    "click",
-    function() {
-
-        if (!editorCategory) {
-            return;
-        }
+  if (!items[index]) {
+    return;
+  }
 
 
-        const confirmed =
-            confirm(
-                "Сбросить список к стандартному?"
-            );
+  const item =
+    items[index];
 
 
-        if (!confirmed) {
-            return;
-        }
-
-
-        options[
-            editorCategory
-        ].list =
-            JSON.parse(
-                JSON.stringify(
-                    defaultOptions[
-                        editorCategory
-                    ].list
-                )
-            );
-
-
-        saveOptions();
-
-        renderItems();
-
-    }
-);
-
-
-// ====================
-// СОЗДАНИЕ КАТЕГОРИИ
-// ====================
-
-function openCategoryModal() {
-
-    categoryIconInput.value =
-        "✨";
-
-    categoryNameInput.value =
-        "";
-
-
-    categoryModal.classList.remove(
-        "hidden"
+  const confirmed =
+    window.confirm(
+      `Удалить вариант «${item.text}»?`
     );
 
 
-    categoryNameInput.focus();
+  if (!confirmed) {
+    return;
+  }
 
+
+  items.splice(index, 1);
+
+
+  saveOptions();
+
+
+  renderEditorItems();
+  renderHome();
+  renderSettings();
+
+
+  haptic("light");
+
+  showToast(
+    "Вариант удалён"
+  );
 }
 
 
-function closeCategoryModal() {
+/* =========================================================
+   СБРОС СПИСКА
+   ========================================================= */
 
-    categoryModal.classList.add(
-        "hidden"
+function resetCurrentList() {
+
+  if (
+    !editorCategory ||
+    !options[editorCategory]
+  ) {
+    return;
+  }
+
+
+  if (
+    !defaultOptions[editorCategory]
+  ) {
+    return;
+  }
+
+
+  const category =
+    editorCategory;
+
+
+  const confirmed =
+    window.confirm(
+      `Сбросить список «${options[category].title}» к исходному?`
     );
 
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  options[category].items =
+    normalizeItems(
+      defaultOptions[category].items
+    );
+
+
+  saveOptions();
+
+
+  renderEditorItems();
+  renderHome();
+  renderSettings();
+
+
+  haptic("success");
+
+  showToast(
+    "Список восстановлен"
+  );
+}
+
+
+/* =========================================================
+   СОЗДАНИЕ КАТЕГОРИИ
+   ========================================================= */
+
+function openCreateCategory() {
+
+  document
+    .getElementById(
+      "createCategoryModal"
+    )
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById(
+      "newCategoryName"
+    )
+    .focus();
+}
+
+
+function closeCreateCategory() {
+
+  document
+    .getElementById(
+      "createCategoryModal"
+    )
+    .classList.add("hidden");
 }
 
 
 function createCategory() {
 
-    const icon =
-        categoryIconInput.value.trim() ||
-        "✨";
-
-
-    const title =
-        categoryNameInput.value.trim();
-
-
-    if (!title) {
-
-        categoryNameInput.focus();
-
-        return;
-
-    }
-
-
-    const categoryId =
-        `custom_${Date.now()}`;
-
-
-    options[
-        categoryId
-    ] = {
-
-        icon:
-            icon,
-
-        title:
-            title,
-
-        list:
-            [],
-
-        custom:
-            true
-
-    };
-
-
-    saveOptions();
-
-
-    closeCategoryModal();
-
-
-    renderCategories();
-
-    renderSettings();
-
-
-    openEditor(
-        categoryId
+  const iconInput =
+    document.getElementById(
+      "newCategoryIcon"
     );
 
+  const nameInput =
+    document.getElementById(
+      "newCategoryName"
+    );
+
+
+  const icon =
+    iconInput.value.trim() ||
+    "✨";
+
+  const title =
+    nameInput.value.trim();
+
+
+  if (!title) {
+
+    haptic("error");
+
+    showToast(
+      "Введите название категории"
+    );
+
+    nameInput.focus();
+
+    return;
+  }
+
+
+  const duplicateTitle =
+    Object.values(options).some(
+      (category) =>
+        category.title.toLowerCase() ===
+        title.toLowerCase()
+    );
+
+
+  if (duplicateTitle) {
+
+    haptic("error");
+
+    showToast(
+      "Такая категория уже существует"
+    );
+
+    nameInput.select();
+
+    return;
+  }
+
+
+  let id =
+    `custom_${Date.now()}`;
+
+
+  while (options[id]) {
+
+    id =
+      `custom_${Date.now()}_${Math.floor(
+        Math.random() * 1000
+      )}`;
+  }
+
+
+  options[id] = {
+
+    icon,
+    title,
+
+    items: []
+  };
+
+
+  saveOptions();
+
+
+  iconInput.value =
+    "✨";
+
+  nameInput.value =
+    "";
+
+
+  closeCreateCategory();
+
+
+  renderHome();
+  renderSettings();
+
+
+  haptic("success");
+
+  showToast(
+    "Категория создана"
+  );
+
+
+  openEditor(id);
 }
 
 
-createCategoryButton.addEventListener(
-    "click",
-    openCategoryModal
-);
+/* =========================================================
+   УДАЛЕНИЕ КАТЕГОРИИ
+   ========================================================= */
+
+function deleteCurrentCategory() {
+
+  if (!editorCategory) {
+    return;
+  }
 
 
-cancelCategoryButton.addEventListener(
-    "click",
-    closeCategoryModal
-);
+  if (
+    !isCustomCategory(
+      editorCategory
+    )
+  ) {
+    return;
+  }
 
 
-saveCategoryButton.addEventListener(
-    "click",
-    createCategory
-);
+  const title =
+    options[editorCategory].title;
 
 
-categoryNameInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key ===
-            "Enter"
-        ) {
-
-            createCategory();
-
-        }
-
-    }
-);
+  const confirmed =
+    window.confirm(
+      `Удалить категорию «${title}»?\n\nВсе варианты внутри неё тоже будут удалены.`
+    );
 
 
-// ====================
-// УДАЛЕНИЕ КАТЕГОРИИ
-// ====================
-
-deleteCategoryButton.addEventListener(
-    "click",
-    function() {
-
-        if (!editorCategory) {
-            return;
-        }
+  if (!confirmed) {
+    return;
+  }
 
 
-        if (
-            !isCustomCategory(
-                editorCategory
-            )
-        ) {
-
-            return;
-
-        }
+  delete options[
+    editorCategory
+  ];
 
 
-        const category =
-            options[
-                editorCategory
-            ];
+  delete previousResults[
+    editorCategory
+  ];
 
 
-        const confirmed =
-            confirm(
-                `Удалить категорию «${category.title}»?`
-            );
+  saveOptions();
 
 
-        if (!confirmed) {
-            return;
-        }
+  editorCategory = null;
 
 
-        delete options[
-            editorCategory
-        ];
+  renderHome();
+  renderSettings();
 
 
-        saveOptions();
+  haptic("success");
+
+  showToast(
+    "Категория удалена"
+  );
 
 
-        editorCategory =
-            null;
+  showScreen("settings");
+}
 
 
-        editorScreen.classList.add(
-            "hidden"
-        );
-
-        settingsScreen.classList.remove(
-            "hidden"
-        );
-
-
-        renderSettings();
-
-        renderCategories();
-
-    }
-);
-
-
-// ====================
-// РУЛЕТКА — ОТКРЫТИЕ
-// ====================
+/* =========================================================
+   РУЛЕТКА
+   ========================================================= */
 
 function openRoulette(category) {
 
-    currentCategory =
-        category;
-
-    previousResult =
-        null;
-
-    currentResult =
-        null;
+  if (!options[category]) {
+    return;
+  }
 
 
-    rouletteCategory.textContent =
-        `${options[category].icon} ${options[category].title}`;
+  const activeItems =
+    getActiveItems(category);
 
 
-    slotTrack.innerHTML = "";
+  if (activeItems.length === 0) {
 
+    haptic("error");
 
-    shareResultButton.classList.add(
-        "hidden"
+    showToast(
+      "Выберите хотя бы один вариант в настройках"
     );
 
+    return;
+  }
 
-    rouletteModal.classList.add(
-        "show"
-    );
 
+  rouletteCategory =
+    category;
+
+
+  rouletteCategoryIcon.textContent =
+    options[category].icon;
+
+
+  rouletteCategoryTitle.textContent =
+    options[category].title;
+
+
+  rouletteModal.classList.remove(
+    "hidden"
+  );
+
+
+  haptic("light");
+
+
+  startRoulette();
 }
 
-
-// ====================
-// РУЛЕТКА — ЗАКРЫТИЕ
-// ====================
 
 function closeRoulette() {
 
-    if (isRolling) {
-        return;
-    }
+  if (isRolling) {
+    return;
+  }
 
 
-    rouletteModal.classList.remove(
-        "show"
-    );
+  rouletteModal.classList.add(
+    "hidden"
+  );
 
+
+  rouletteCategory = null;
+  rouletteResult = null;
 }
 
 
-// ====================
-// SLOT ITEM
-// ====================
+/* =========================================================
+   ДОСТУПНЫЕ ВАРИАНТЫ
+   ========================================================= */
 
-function createSlotItem(
-    text,
-    icon
-) {
+function getAvailableRouletteItems() {
 
-    const element =
-        document.createElement(
-            "div"
-        );
+  if (!rouletteCategory) {
+    return [];
+  }
 
-    element.className =
-        "slot-item";
 
-    element.textContent =
-        `${icon} ${text}`;
+  const items =
+    getActiveItems(
+      rouletteCategory
+    );
 
-    return element;
 
+  const previous =
+    previousResults[
+      rouletteCategory
+    ];
+
+
+  /*
+   * Если есть несколько активных вариантов,
+   * прошлый результат не участвует
+   * в следующем запуске.
+   *
+   * Если активный вариант только один —
+   * он остаётся доступен.
+   */
+
+  if (
+    items.length > 1 &&
+    previous
+  ) {
+
+    return items.filter(
+      (item) =>
+        item !== previous
+    );
+  }
+
+
+  return [...items];
 }
 
 
-// ====================
-// ЗАПУСК РУЛЕТКИ
-// ====================
+/* =========================================================
+   ЭЛЕМЕНТ РУЛЕТКИ
+   ========================================================= */
 
-function startRoulette(
-    category,
-    isReroll = false
-) {
+function createSlotItem(text) {
 
-    if (isRolling) {
-        return;
-    }
-
-
-    const currentData =
-        options[category];
-
-    const currentList =
-        currentData.list;
-
-
-    if (
-        currentList.length ===
-        0
-    ) {
-
-        slotTrack.innerHTML = "";
-
-
-        slotTrack.appendChild(
-            createSlotItem(
-                "Добавь варианты",
-                "⚙️"
-            )
-        );
-
-
-        shareResultButton.classList.add(
-            "hidden"
-        );
-
-
-        return;
-
-    }
-
-
-    let availableList =
-        [...currentList];
-
-
-    // При повторном вращении
-    // исключаем только прошлый результат
-
-    if (
-        isReroll &&
-        previousResult !== null &&
-        availableList.length > 1
-    ) {
-
-        availableList =
-            availableList.filter(
-                item =>
-                    item !==
-                    previousResult
-            );
-
-    }
-
-
-    isRolling =
-        true;
-
-
-    rouletteModal.classList.add(
-        "rolling"
+  const element =
+    document.createElement(
+      "div"
     );
 
 
-    shareResultButton.classList.add(
-        "hidden"
+  element.className =
+    "slot-item";
+
+
+  element.textContent =
+    text;
+
+
+  return element;
+}
+
+
+/* =========================================================
+   ЗАПУСК РУЛЕТКИ
+   ========================================================= */
+
+function startRoulette() {
+
+  if (!rouletteCategory) {
+    return;
+  }
+
+
+  const available =
+    getAvailableRouletteItems();
+
+
+  if (available.length === 0) {
+
+    haptic("error");
+
+    showToast(
+      "Нет доступных вариантов"
+    );
+
+    return;
+  }
+
+
+  isRolling = true;
+
+
+  rerollButton.disabled =
+    true;
+
+
+  showResultButton.classList.add(
+    "hidden"
+  );
+
+
+  rouletteHint.textContent =
+    "Выбираем...";
+
+
+  slotReel.style.transition =
+    "none";
+
+
+  slotReel.style.transform =
+    "translateY(0)";
+
+
+  /*
+   * Создаём длинную ленту.
+   */
+
+  const rounds = 8;
+
+  const sequence = [];
+
+
+  for (
+    let round = 0;
+    round < rounds;
+    round++
+  ) {
+
+    available.forEach(
+      (item) => {
+        sequence.push(item);
+      }
+    );
+  }
+
+
+  /*
+   * Выбираем результат.
+   */
+
+  const result =
+    available[
+      Math.floor(
+        Math.random() *
+        available.length
+      )
+    ];
+
+
+  sequence.push(result);
+
+
+  rouletteResult =
+    result;
+
+
+  slotReel.innerHTML =
+    "";
+
+
+  sequence.forEach(
+    (item) => {
+
+      slotReel.appendChild(
+        createSlotItem(item)
+      );
+
+    }
+  );
+
+
+  const targetIndex =
+    sequence.length - 1;
+
+
+  const itemHeight =
+    82;
+
+
+  const duration =
+    2500 +
+    Math.floor(
+      Math.random() * 500
     );
 
 
-    slotTrack.innerHTML = "";
+  requestAnimationFrame(
+    () => {
+
+      requestAnimationFrame(
+        () => {
+
+          slotReel.style.transition =
+            `transform ${duration}ms cubic-bezier(0.12, 0.8, 0.18, 1)`;
 
 
-    const spinItems = [];
-
-    const rounds = 8;
-
-
-    for (
-        let round = 0;
-        round < rounds;
-        round++
-    ) {
-
-        availableList.forEach(
-            item => {
-
-                spinItems.push(
-                    item
-                );
-
-            }
-        );
-
-    }
-
-
-    spinItems.forEach(
-        item => {
-
-            slotTrack.appendChild(
-                createSlotItem(
-                    item,
-                    currentData.icon
-                )
-            );
+          slotReel.style.transform =
+            `translateY(-${
+              targetIndex *
+              itemHeight
+            }px)`;
 
         }
-    );
+      );
+
+    }
+  );
 
 
-    const finalIndex =
-        Math.floor(
-            Math.random() *
-            availableList.length
-        );
+  setTimeout(
+    () => {
+
+      isRolling = false;
 
 
-    const finalResult =
-        availableList[
-            finalIndex
-        ];
+      rerollButton.disabled =
+        false;
 
 
-    const roundSize =
-        availableList.length;
-
-    const targetRound =
-        6;
-
-    const targetIndex =
-        targetRound *
-        roundSize +
-        finalIndex;
+      rouletteHint.textContent =
+        "Решение готово";
 
 
-    const itemHeight =
-        82;
+      showResultButton.classList.remove(
+        "hidden"
+      );
 
 
-    const offset =
-        targetIndex *
-        itemHeight;
+      previousResults[
+        rouletteCategory
+      ] = rouletteResult;
 
 
-    slotTrack.style.transition =
-        "none";
+      haptic("success");
 
-    slotTrack.style.transform =
-        "translateY(0)";
-
-
-    void slotTrack.offsetWidth;
-
-
-    slotTrack.style.transition =
-        "transform 3s cubic-bezier(0.12, 0.8, 0.18, 1)";
-
-
-    slotTrack.style.transform =
-        `translateY(-${offset}px)`;
-
-
-    setTimeout(
-        function() {
-
-            previousResult =
-                finalResult;
-
-            currentResult =
-                finalResult;
-
-
-            isRolling =
-                false;
-
-
-            rouletteModal.classList.remove(
-                "rolling"
-            );
-
-
-            shareResultButton.classList.remove(
-                "hidden"
-            );
-
-
-            if (
-                tg.HapticFeedback
-            ) {
-
-                tg.HapticFeedback
-                    .notificationOccurred(
-                        "success"
-                    );
-
-            }
-
-        },
-        3100
-    );
-
+    },
+    duration + 100
+  );
 }
 
 
-// ====================
-// ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ
-// ====================
+function rerollRoulette() {
+
+  if (isRolling) {
+    return;
+  }
+
+
+  startRoulette();
+}
+
+
+/* =========================================================
+   РЕЗУЛЬТАТ
+   ========================================================= */
+
+function openResult() {
+
+  if (
+    !rouletteCategory ||
+    !rouletteResult
+  ) {
+    return;
+  }
+
+
+  const category =
+    options[rouletteCategory];
+
+
+  resultIcon.textContent =
+    category.icon;
+
+
+  resultCategory.textContent =
+    category.title;
+
+
+  resultText.textContent =
+    rouletteResult;
+
+
+  resultModal.classList.remove(
+    "hidden"
+  );
+
+
+  haptic("light");
+}
+
+
+function closeResult() {
+
+  resultModal.classList.add(
+    "hidden"
+  );
+}
+
+
+/* =========================================================
+   SHARING
+   ========================================================= */
+
+function getShareText() {
+
+  if (
+    !rouletteCategory ||
+    !rouletteResult
+  ) {
+    return "";
+  }
+
+
+  const category =
+    options[rouletteCategory];
+
+
+  return [
+    "🎲 Решатор",
+    "",
+    `${category.icon} ${category.title}`,
+    "",
+    `👉 ${rouletteResult}`,
+    "",
+    `Реши сам: ${BOT_URL}`
+  ].join("\n");
+}
+
 
 async function shareResult() {
 
-    if (
-        !currentCategory ||
-        !currentResult
-    ) {
+  const text =
+    getShareText();
 
+
+  if (!text) {
+    return;
+  }
+
+
+  if (navigator.share) {
+
+    try {
+
+      await navigator.share({
+
+        title:
+          "Решатор",
+
+        text,
+
+        url:
+          BOT_URL
+
+      });
+
+
+      haptic("success");
+
+      return;
+
+    } catch (error) {
+
+      if (
+        error?.name ===
+        "AbortError"
+      ) {
         return;
+      }
 
     }
+  }
 
 
-    const data =
-        options[
-            currentCategory
-        ];
+  await copyText(text);
+
+  showToast(
+    "Готово — результат скопирован"
+  );
+}
 
 
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
+async function copyResult() {
+
+  const text =
+    getShareText();
 
 
-    canvas.width =
-        1080;
-
-    canvas.height =
-        1350;
+  if (!text) {
+    return;
+  }
 
 
-    const ctx =
-        canvas.getContext(
-            "2d"
-        );
+  await copyText(text);
+}
 
 
-    const gradient =
-        ctx.createLinearGradient(
-            0,
-            0,
-            1080,
-            1350
-        );
+async function copyText(text) {
 
+  try {
 
-    gradient.addColorStop(
-        0,
-        "#f5f7fa"
-    );
-
-    gradient.addColorStop(
-        1,
-        "#dfe6ee"
+    await navigator.clipboard.writeText(
+      text
     );
 
 
-    ctx.fillStyle =
-        gradient;
+    haptic("success");
 
-    ctx.fillRect(
-        0,
-        0,
-        1080,
-        1350
+    showToast(
+      "Скопировано"
     );
 
+  } catch {
 
-    const cardX =
-        70;
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
 
-    const cardY =
-        70;
 
-    const cardWidth =
-        940;
+    textarea.value =
+      text;
 
-    const cardHeight =
-        1210;
 
-    const radius =
-        48;
+    textarea.style.position =
+      "fixed";
 
-
-    ctx.fillStyle =
-        "#ffffff";
-
-
-    roundRect(
-        ctx,
-        cardX,
-        cardY,
-        cardWidth,
-        cardHeight,
-        radius
-    );
-
-
-    ctx.fill();
-
-
-    ctx.fillStyle =
-        "#111111";
-
-    ctx.font =
-        "800 72px Arial";
-
-    ctx.textAlign =
-        "center";
-
-
-    ctx.fillText(
-        "Решатор",
-        540,
-        250
-    );
-
-
-    ctx.font =
-        "120px Arial";
-
-
-    ctx.fillText(
-        data.icon,
-        540,
-        460
-    );
-
-
-    ctx.fillStyle =
-        "#777777";
-
-    ctx.font =
-        "600 38px Arial";
-
-
-    ctx.fillText(
-        data.title,
-        540,
-        550
-    );
-
-
-    ctx.fillStyle =
-        "#e5e5e5";
-
-    ctx.fillRect(
-        220,
-        610,
-        640,
-        3
-    );
-
-
-    ctx.fillStyle =
-        "#111111";
-
-    ctx.font =
-        "800 62px Arial";
-
-
-    const lines =
-        wrapText(
-            ctx,
-            currentResult,
-            760
-        );
-
-
-    let resultY =
-        760;
-
-
-    lines.forEach(
-        line => {
-
-            ctx.fillText(
-                line,
-                540,
-                resultY
-            );
-
-            resultY +=
-                82;
-
-        }
-    );
-
-
-    ctx.fillStyle =
-        "#999999";
-
-    ctx.font =
-        "400 30px Arial";
-
-
-    ctx.fillText(
-        "Решено за тебя",
-        540,
-        1120
-    );
-
-
-    ctx.font =
-        "600 28px Arial";
-
-
-    ctx.fillText(
-        "РЕШАТОР",
-        540,
-        1190
-    );
-
-
-    const blob =
-        await canvasToBlob(
-            canvas
-        );
-
-
-    const file =
-        new File(
-            [blob],
-            "reshator-result.png",
-            {
-                type:
-                    "image/png"
-            }
-        );
-
-
-    if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare({
-            files: [file]
-        })
-    ) {
-
-        try {
-
-            await navigator.share({
-
-                title:
-                    "Решатор",
-
-                text:
-                    `${data.title}: ${currentResult}`,
-
-                files: [
-                    file
-                ]
-
-            });
-
-
-            return;
-
-        } catch (error) {
-
-            if (
-                error.name ===
-                "AbortError"
-            ) {
-
-                return;
-
-            }
-
-        }
-
-    }
-
-
-    const url =
-        URL.createObjectURL(
-            blob
-        );
-
-
-    const link =
-        document.createElement(
-            "a"
-        );
-
-    link.href =
-        url;
-
-    link.download =
-        "reshator-result.png";
+    textarea.style.opacity =
+      "0";
 
 
     document.body.appendChild(
-        link
-    );
-
-    link.click();
-
-    link.remove();
-
-
-    URL.revokeObjectURL(
-        url
-    );
-
-}
-
-
-// ====================
-// CANVAS
-// ====================
-
-function roundRect(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    radius
-) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + radius,
-        y
-    );
-
-    ctx.lineTo(
-        x + width - radius,
-        y
-    );
-
-    ctx.quadraticCurveTo(
-        x + width,
-        y,
-        x + width,
-        y + radius
-    );
-
-    ctx.lineTo(
-        x + width,
-        y + height - radius
-    );
-
-    ctx.quadraticCurveTo(
-        x + width,
-        y + height,
-        x + width - radius,
-        y + height
-    );
-
-    ctx.lineTo(
-        x + radius,
-        y + height
-    );
-
-    ctx.quadraticCurveTo(
-        x,
-        y + height,
-        x,
-        y + height - radius
-    );
-
-    ctx.lineTo(
-        x,
-        y + radius
-    );
-
-    ctx.quadraticCurveTo(
-        x,
-        y,
-        x + radius,
-        y
-    );
-
-    ctx.closePath();
-
-}
-
-
-function wrapText(
-    ctx,
-    text,
-    maxWidth
-) {
-
-    const words =
-        text.split(" ");
-
-    const lines = [];
-
-    let line = "";
-
-
-    words.forEach(
-        word => {
-
-            const testLine =
-                line
-                    ? `${line} ${word}`
-                    : word;
-
-
-            const width =
-                ctx.measureText(
-                    testLine
-                ).width;
-
-
-            if (
-                width > maxWidth &&
-                line
-            ) {
-
-                lines.push(
-                    line
-                );
-
-                line =
-                    word;
-
-            } else {
-
-                line =
-                    testLine;
-
-            }
-
-        }
+      textarea
     );
 
 
-    if (line) {
+    textarea.select();
 
-        lines.push(
-            line
-        );
 
+    try {
+
+      document.execCommand(
+        "copy"
+      );
+
+
+      haptic("success");
+
+      showToast(
+        "Скопировано"
+      );
+
+    } catch {
+
+      haptic("error");
+
+      showToast(
+        "Не удалось скопировать"
+      );
     }
 
 
-    return lines;
-
+    textarea.remove();
+  }
 }
 
 
-function canvasToBlob(
-    canvas
-) {
+/* =========================================================
+   СОБЫТИЯ
+   ========================================================= */
 
-    return new Promise(
-        resolve => {
-
-            canvas.toBlob(
-                resolve,
-                "image/png"
-            );
-
-        }
-    );
-
-}
-
-
-// ====================
-// СОБЫТИЯ
-// ====================
-
-settingsButton.addEventListener(
+document
+  .getElementById(
+    "settingsButton"
+  )
+  .addEventListener(
     "click",
     openSettings
-);
+  );
 
 
-backButton.addEventListener(
+document
+  .getElementById(
+    "settingsBackButton"
+  )
+  .addEventListener(
     "click",
     closeSettings
-);
+  );
 
 
-editorBackButton.addEventListener(
+document
+  .getElementById(
+    "editorBackButton"
+  )
+  .addEventListener(
     "click",
     closeEditor
+  );
+
+
+document
+  .getElementById(
+    "saveCategoryChangesButton"
+  )
+  .addEventListener(
+    "click",
+    saveCategoryChanges
+  );
+
+
+editorNameInput.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (
+      event.key === "Enter"
+    ) {
+      saveCategoryChanges();
+    }
+
+  }
 );
+
+
+editorIconInput.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (
+      event.key === "Enter"
+    ) {
+      saveCategoryChanges();
+    }
+
+  }
+);
+
+
+document
+  .getElementById(
+    "addItemButton"
+  )
+  .addEventListener(
+    "click",
+    addItem
+  );
+
+
+newItemInput.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (
+      event.key === "Enter"
+    ) {
+      addItem();
+    }
+
+  }
+);
+
+
+document
+  .getElementById(
+    "resetListButton"
+  )
+  .addEventListener(
+    "click",
+    resetCurrentList
+  );
+
+
+document
+  .getElementById(
+    "deleteCategoryButton"
+  )
+  .addEventListener(
+    "click",
+    deleteCurrentCategory
+  );
+
+
+document
+  .getElementById(
+    "createCategoryButton"
+  )
+  .addEventListener(
+    "click",
+    openCreateCategory
+  );
+
+
+document
+  .getElementById(
+    "closeCreateCategoryButton"
+  )
+  .addEventListener(
+    "click",
+    closeCreateCategory
+  );
+
+
+document
+  .getElementById(
+    "confirmCreateCategoryButton"
+  )
+  .addEventListener(
+    "click",
+    createCategory
+  );
+
+
+document
+  .getElementById(
+    "newCategoryName"
+  )
+  .addEventListener(
+    "keydown",
+    (event) => {
+
+      if (
+        event.key === "Enter"
+      ) {
+        createCategory();
+      }
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "closeRouletteButton"
+  )
+  .addEventListener(
+    "click",
+    closeRoulette
+  );
 
 
 rerollButton.addEventListener(
-    "click",
-    function() {
-
-        if (!currentCategory) {
-            return;
-        }
-
-
-        startRoulette(
-            currentCategory,
-            true
-        );
-
-    }
+  "click",
+  rerollRoulette
 );
 
 
-shareResultButton.addEventListener(
+showResultButton.addEventListener(
+  "click",
+  openResult
+);
+
+
+document
+  .getElementById(
+    "closeResultButton"
+  )
+  .addEventListener(
+    "click",
+    closeResult
+  );
+
+
+document
+  .getElementById(
+    "shareResultButton"
+  )
+  .addEventListener(
     "click",
     shareResult
-);
+  );
 
 
-closeRouletteButton.addEventListener(
+document
+  .getElementById(
+    "copyResultButton"
+  )
+  .addEventListener(
     "click",
-    closeRoulette
-);
+    copyResult
+  );
 
+
+/* Закрытие модалок по затемнению */
 
 rouletteModal.addEventListener(
+  "click",
+  (event) => {
+
+    if (
+      event.target ===
+        rouletteModal &&
+      !isRolling
+    ) {
+      closeRoulette();
+    }
+
+  }
+);
+
+
+resultModal.addEventListener(
+  "click",
+  (event) => {
+
+    if (
+      event.target ===
+      resultModal
+    ) {
+      closeResult();
+    }
+
+  }
+);
+
+
+document
+  .getElementById(
+    "createCategoryModal"
+  )
+  .addEventListener(
     "click",
-    function(event) {
+    (event) => {
 
-        if (
-            event.target.classList.contains(
-                "roulette-overlay"
-            )
-        ) {
-
-            closeRoulette();
-
-        }
-
-    }
-);
-
-
-categoryModal.addEventListener(
-    "click",
-    function(event) {
-
-        if (
-            event.target.classList.contains(
-                "small-modal-overlay"
-            )
-        ) {
-
-            closeCategoryModal();
-
-        }
+      if (
+        event.target ===
+        document.getElementById(
+          "createCategoryModal"
+        )
+      ) {
+        closeCreateCategory();
+      }
 
     }
-);
+  );
 
 
-// ====================
-// TELEGRAM THEME
-// ====================
+/* =========================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ========================================================= */
 
-tg.onEvent(
-    "themeChanged",
-    function() {
+loadOptions();
 
-        console.log(
-            "Telegram theme changed"
-        );
-
-    }
-);
-
-
-// ====================
-// ПЕРВЫЙ РЕНДЕР
-// ====================
-
-renderCategories();
+renderHome();
 
 renderSettings();
 
-
-// ====================
-// DEBUG
-// ====================
-
-console.log(
-    "Telegram WebApp:",
-    tg
-);
-
-console.log(
-    "Telegram theme:",
-    tg.themeParams
-);
-
-console.log(
-    "Reshator options:",
-    options
-);
+showScreen("home");
