@@ -19,7 +19,7 @@ if (tg) {
    ========================================================= */
 
 const STORAGE_KEY = "reshatorOptions";
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 const BOT_URL = "https://t.me/reshatorbykkchrv_bot/Reshator";
 
 const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
@@ -850,8 +850,7 @@ function closeRoulette() {
 }
 
 /*
- * Исключаем прошлый результат только если вариантов больше двух —
- * иначе при двух вариантах рулетка становится предсказуемой.
+ * Исключаем предыдущий результат, если есть хотя бы два варианта.
  */
 function getAvailableRouletteItems() {
   if (!rouletteCategory) return [];
@@ -859,7 +858,7 @@ function getAvailableRouletteItems() {
   const items = getActiveItems(rouletteCategory);
   const previous = previousResults[rouletteCategory];
 
-  if (items.length > 2 && previous) {
+  if (items.length > 1 && previous) {
     const filtered = items.filter((item) => item !== previous);
     if (filtered.length) return filtered;
   }
@@ -943,7 +942,7 @@ function startRoulette() {
 
   if (reduceMotion.matches) {
     els.slotReel.style.transform = `translateY(-${offset}px)`;
-    finish();
+    requestAnimationFrame(() => requestAnimationFrame(finish));
     return;
   }
 
@@ -1214,7 +1213,7 @@ async function shareResult() {
     if (tg?.openTelegramLink) {
       const url =
         `https://t.me/share/url?url=${encodeURIComponent(BOT_URL)}` +
-        `&text=${encodeURIComponent(caption)}`;
+        `&text=${encodeURIComponent(`${caption}\n\nКартинка результата доступна в приложении.`)}`;
 
       tg.openTelegramLink(url);
       return;
