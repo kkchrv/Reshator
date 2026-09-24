@@ -1053,7 +1053,34 @@ function drawLines(ctx, lines, x, centerY, lineHeight) {
 }
 
 function getTelegramButtonColor() {
-  return tg?.themeParams?.button_color || "#2481cc";
+  const color = tg?.themeParams?.button_color;
+
+  if (!color) return "#2481cc";
+
+  // Telegram может вернуть hex или rgb(...).
+  const match = color.match(
+    /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+  );
+
+  if (match) {
+    let hex = match[1];
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((char) => char + char)
+        .join("");
+    }
+
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    // Если тема слишком светлая, белый текст и белая иконка теряются.
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    if (luminance > 0.78) return "#2481cc";
+  }
+
+  return color;
 }
 
 function createResultCanvas() {
@@ -1078,66 +1105,65 @@ function createResultCanvas() {
   ctx.fillRect(0, 0, width, height);
 
   /* Верхний блок */
-  const topHeight = 360;
+  const topHeight = 300;
   ctx.fillStyle = getTelegramButtonColor();
   ctx.fillRect(0, 0, width, topHeight);
 
-  /* Иконка категории */
-  const iconX = 90;
-  const iconY = 88;
-  const iconSize = 184;
+  /* Иконка категории — по центру */
+  const iconSize = 150;
+  const iconX = (width - iconSize) / 2;
+  const iconY = 48;
 
-  roundedRect(ctx, iconX, iconY, iconSize, iconSize, 48);
+  roundedRect(ctx, iconX, iconY, iconSize, iconSize, 38);
   ctx.fillStyle = "rgba(255,255,255,0.16)";
   ctx.fill();
 
-  let iconFontSize = 100;
+  let iconFontSize = 82;
   ctx.font = `${iconFontSize}px ${EMOJI_FONT}`;
 
   const iconWidth = ctx.measureText(category.icon).width;
-  if (iconWidth > 150) {
-    iconFontSize = Math.floor((iconFontSize * 150) / iconWidth);
+  if (iconWidth > 120) {
+    iconFontSize = Math.floor((iconFontSize * 120) / iconWidth);
     ctx.font = `${iconFontSize}px ${EMOJI_FONT}`;
   }
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText(category.icon, iconX + iconSize / 2, iconY + iconSize / 2 + 4);
+  ctx.fillText(category.icon, width / 2, iconY + iconSize / 2 + 3);
 
-  /* Название категории — справа от иконки, внутри цветного блока */
-  ctx.textAlign = "left";
-  ctx.font = `700 54px ${FONT}`;
+  /* Название категории — под иконкой */
+  ctx.font = `700 48px ${FONT}`;
   ctx.fillStyle = "#ffffff";
 
-  const titleLines = wrapLines(ctx, category.title, 690, 3);
-  drawLines(ctx, titleLines, 310, iconY + iconSize / 2, 64);
+  const titleLines = wrapLines(ctx, category.title, 860, 2);
+  drawLines(ctx, titleLines, width / 2, 246, 56);
 
-  /* Центральная карточка */
-  const cardX = 55;
-  const cardY = 410;
-  const cardWidth = 970;
-  const cardHeight = 650;
+  /* Центральная карточка — уже и с большими боковыми полями */
+  const cardX = 90;
+  const cardY = 350;
+  const cardWidth = 900;
+  const cardHeight = 560;
 
   roundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 42);
   ctx.fillStyle = "#ffffff";
   ctx.fill();
 
-  /* Заголовок «РЕШЕНО» — letterSpacing не должен протекать дальше */
+  /* Заголовок «РЕШЕНО» */
   ctx.save();
   ctx.textAlign = "center";
   ctx.fillStyle = "#8e8e93";
   ctx.font = `800 28px ${FONT}`;
   ctx.letterSpacing = "4px";
-  ctx.fillText("РЕШЕНО", width / 2, cardY + 100);
+  ctx.fillText("РЕШЕНО", width / 2, cardY + 92);
   ctx.restore();
 
-  /* Результат: подбираем размер, чтобы влезло в 3 строки */
-  const maxResultWidth = 820;
+  /* Результат */
+  const maxResultWidth = 700;
   let resultSize = 82;
 
   for (; resultSize >= 38; resultSize -= 4) {
     ctx.font = `800 ${resultSize}px ${FONT}`;
-    if (wrapLines(ctx, rouletteResult, maxResultWidth, 99).length <= 3) break;
+    if (wrapLines(ctx, rouletteResult, maxResultWidth, 3).length <= 3) break;
   }
 
   resultSize = Math.max(resultSize, 38);
@@ -1145,22 +1171,22 @@ function createResultCanvas() {
   ctx.textAlign = "center";
   ctx.fillStyle = "#111111";
 
-  const resultLines = wrapLines(ctx, rouletteResult, maxResultWidth, 5);
-  drawLines(ctx, resultLines, width / 2, cardY + 380, resultSize * 1.2);
+  const resultLines = wrapLines(ctx, rouletteResult, maxResultWidth, 3);
+  drawLines(ctx, resultLines, width / 2, cardY + 330, resultSize * 1.18);
 
   /* Нижний блок */
   ctx.textAlign = "left";
 
   ctx.fillStyle = "#111111";
   ctx.font = `800 36px ${FONT}`;
-  ctx.fillText("🎲  Решатор", 70, 1175);
+  ctx.fillText("🎲  Решатор", 70, 1005);
 
   ctx.fillStyle = "#8e8e93";
   ctx.font = `500 25px ${FONT}`;
-  ctx.fillText("t.me/reshatorbykkchrv_bot/Reshator", 70, 1228);
+  ctx.fillText("t.me/reshatorbykkchrv_bot/Reshator", 70, 1058);
 
   ctx.font = `500 22px ${FONT}`;
-  ctx.fillText("Не можешь решить? Решатор решит за тебя", 70, 1276);
+  ctx.fillText("Не можешь решить? Решатор решит за тебя", 70, 1106);
 
   return canvas;
 }
