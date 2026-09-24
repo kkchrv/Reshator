@@ -1083,47 +1083,119 @@ function getTelegramButtonColor() {
   return color;
 }
 
+function getShareHeaderColor() {
+  const color = getTelegramButtonColor();
+
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return '#2481cc';
+
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  return luminance > 0.78 ? '#2481cc' : color;
+}
+
 function createResultCanvas() {
   const category = options[rouletteCategory];
 
   if (!category || !rouletteResult) throw new Error("Нет результата");
 
   const width = 1080;
-  const height = 1350;
+  const side = 60;
+  const cardWidth = width - side * 2;
 
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas недоступен");
 
   ctx.textBaseline = "middle";
 
-  /* Фон */
+  /* =========================================================
+     ПОДБОР РАЗМЕРОВ
+     ========================================================= */
+
+  const iconSize = 150;
+  const iconY = 45;
+
+  ctx.font = `700 52px ${FONT}`;
+  ctx.textAlign = "center";
+  const titleLines = wrapLines(ctx, category.title, 820, 2);
+  const titleLineHeight = 60;
+
+  /*
+   * Результат остаётся крупным, но карточка теперь растёт
+   * только по количеству строк результата.
+   */
+  const maxResultWidth = 820;
+  let resultSize = 84;
+
+  for (; resultSize >= 44; resultSize -= 4) {
+    ctx.font = `800 ${resultSize}px ${FONT}`;
+    if (wrapLines(ctx, rouletteResult, maxResultWidth, 3).length <= 3) break;
+  }
+
+  resultSize = Math.max(resultSize, 44);
+  ctx.font = `800 ${resultSize}px ${FONT}`;
+  const resultLines = wrapLines(ctx, rouletteResult, maxResultWidth, 3);
+  const resultLineHeight = Math.round(resultSize * 1.12);
+  const resultBlockHeight = resultLines.length * resultLineHeight;
+
+  /* Верхний блок — только настолько высокий, насколько нужен заголовок. */
+  const topHeight = 270 + (titleLines.length - 1) * titleLineHeight;
+
+  /*
+   * Карточка максимально компактная:
+   * 80 px — «РЕШЕНО»,
+   * 42 px — промежуток,
+   * результат,
+   * не больше половины высоты шрифта снизу.
+   */
+  const cardY = topHeight + 32;
+  const cardTopPadding = 82;
+  const resultGap = 42;
+  const cardBottomPadding = Math.round(resultSize * 0.5);
+  const cardHeight =
+    cardTopPadding +
+    resultGap +
+    resultBlockHeight +
+    cardBottomPadding;
+
+  /* Нижний блок заканчивается почти сразу после ссылки. */
+  const footerTop = cardY + cardHeight + 42;
+  const footerBottom = 42;
+  const height = footerTop + 72 + footerBottom;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  /* =========================================================
+     ФОН
+     ========================================================= */
+
   ctx.fillStyle = "#f2f2f7";
   ctx.fillRect(0, 0, width, height);
 
-  /* Верхний блок */
-  const topHeight = 300;
-  ctx.fillStyle = getTelegramButtonColor();
+  /* =========================================================
+     ВЕРХНИЙ БЛОК
+     ========================================================= */
+
+  ctx.fillStyle = getShareHeaderColor();
   ctx.fillRect(0, 0, width, topHeight);
 
-  /* Иконка категории — по центру */
-  const iconSize = 150;
+  /* Иконка категории */
   const iconX = (width - iconSize) / 2;
-  const iconY = 48;
 
-  roundedRect(ctx, iconX, iconY, iconSize, iconSize, 38);
+  roundedRect(ctx, iconX, iconY, iconSize, iconSize, 40);
   ctx.fillStyle = "rgba(255,255,255,0.16)";
   ctx.fill();
 
-  let iconFontSize = 82;
+  let iconFontSize = 88;
   ctx.font = `${iconFontSize}px ${EMOJI_FONT}`;
 
   const iconWidth = ctx.measureText(category.icon).width;
-  if (iconWidth > 120) {
-    iconFontSize = Math.floor((iconFontSize * 120) / iconWidth);
+  if (iconWidth > 125) {
+    iconFontSize = Math.floor((iconFontSize * 125) / iconWidth);
     ctx.font = `${iconFontSize}px ${EMOJI_FONT}`;
   }
 
@@ -1131,62 +1203,59 @@ function createResultCanvas() {
   ctx.fillStyle = "#ffffff";
   ctx.fillText(category.icon, width / 2, iconY + iconSize / 2 + 3);
 
-  /* Название категории — под иконкой */
-  ctx.font = `700 48px ${FONT}`;
+  /* Название категории */
+  ctx.font = `700 52px ${FONT}`;
   ctx.fillStyle = "#ffffff";
+  drawLines(
+    ctx,
+    titleLines,
+    width / 2,
+    iconY + iconSize + 48 + (titleLines.length - 1) * 4,
+    titleLineHeight
+  );
 
-  const titleLines = wrapLines(ctx, category.title, 860, 2);
-  drawLines(ctx, titleLines, width / 2, 246, 56);
+  /* =========================================================
+     КАРТОЧКА РЕЗУЛЬТАТА
+     ========================================================= */
 
-  /* Центральная карточка — уже и с большими боковыми полями */
-  const cardX = 90;
-  const cardY = 350;
-  const cardWidth = 900;
-  const cardHeight = 560;
+  const cardX = side;
 
   roundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 42);
   ctx.fillStyle = "#ffffff";
   ctx.fill();
 
-  /* Заголовок «РЕШЕНО» */
+  /* «РЕШЕНО» */
   ctx.save();
   ctx.textAlign = "center";
   ctx.fillStyle = "#8e8e93";
   ctx.font = `800 28px ${FONT}`;
   ctx.letterSpacing = "4px";
-  ctx.fillText("РЕШЕНО", width / 2, cardY + 92);
+  ctx.fillText("РЕШЕНО", width / 2, cardY + 48);
   ctx.restore();
 
   /* Результат */
-  const maxResultWidth = 700;
-  let resultSize = 82;
-
-  for (; resultSize >= 38; resultSize -= 4) {
-    ctx.font = `800 ${resultSize}px ${FONT}`;
-    if (wrapLines(ctx, rouletteResult, maxResultWidth, 3).length <= 3) break;
-  }
-
-  resultSize = Math.max(resultSize, 38);
   ctx.font = `800 ${resultSize}px ${FONT}`;
   ctx.textAlign = "center";
   ctx.fillStyle = "#111111";
 
-  const resultLines = wrapLines(ctx, rouletteResult, maxResultWidth, 3);
-  drawLines(ctx, resultLines, width / 2, cardY + 330, resultSize * 1.18);
+  const resultCenterY =
+    cardY + cardTopPadding + resultGap + resultBlockHeight / 2;
 
-  /* Нижний блок */
+  drawLines(ctx, resultLines, width / 2, resultCenterY, resultLineHeight);
+
+  /* =========================================================
+     НИЖНИЙ БЛОК
+     ========================================================= */
+
   ctx.textAlign = "left";
 
   ctx.fillStyle = "#111111";
   ctx.font = `800 36px ${FONT}`;
-  ctx.fillText("🎲  Решатор", 70, 1005);
+  ctx.fillText("🎲  Решатор", side, footerTop + 22);
 
   ctx.fillStyle = "#8e8e93";
   ctx.font = `500 25px ${FONT}`;
-  ctx.fillText("t.me/reshatorbykkchrv_bot/Reshator", 70, 1058);
-
-  ctx.font = `500 22px ${FONT}`;
-  ctx.fillText("Не можешь решить? Решатор решит за тебя", 70, 1106);
+  ctx.fillText("t.me/reshatorbykkchrv_bot/Reshator", side, footerTop + 62);
 
   return canvas;
 }
@@ -1212,44 +1281,44 @@ async function buildShareFile() {
    ========================================================= */
 
 function getShareCaption() {
-  const category = options[rouletteCategory];
-  return `${category.icon} ${category.title}\n\n👉 ${rouletteResult}`;
+  return `Решатор: ${BOT_URL}`;
 }
 
 async function shareResult() {
   if (!rouletteCategory || !rouletteResult || !options[rouletteCategory]) return;
 
-  const caption = getShareCaption();
-
   try {
     const file = await sharePrep;
 
-    /* 1. Системное меню «Поделиться» с картинкой */
+    /*
+     * В Telegram WebView передача files + text приводит к двум
+     * отдельным сообщениям: фото отдельно, текст отдельно.
+     * Поэтому здесь отправляем ТОЛЬКО фото.
+     * Ссылка на Решатор уже находится внутри самого изображения.
+     */
     if (file && navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        text: `${caption}\n\nРешатор: ${BOT_URL}`
-      });
+      await navigator.share({ files: [file] });
 
       haptic("success");
       return;
     }
 
-    /* 2. Telegram: выбор чата и отправка текста со ссылкой на бота */
+    /*
+     * Запасной вариант без поддержки отправки файла.
+     * Открываем стандартное Telegram-поделиться только со ссылкой.
+     */
     if (tg?.openTelegramLink) {
       const url =
         `https://t.me/share/url?url=${encodeURIComponent(BOT_URL)}` +
-        `&text=${encodeURIComponent(`${caption}\n\nКартинка результата доступна в приложении.`)}`;
+        `&text=${encodeURIComponent("Результат Решатора — см. в приложении.")}`;
 
       tg.openTelegramLink(url);
       return;
     }
 
-    /* 3. Запасной вариант — копирование */
-    const copied = await copyText(`${caption}\n\nРешатор: ${BOT_URL}`, false);
-    showToast(copied ? "Результат скопирован" : "Не удалось поделиться");
+    const copied = await copyText(getShareCaption(), false);
+    showToast(copied ? "Ссылка скопирована" : "Не удалось поделиться");
   } catch (error) {
-    // Пользователь просто закрыл меню «Поделиться»
     if (error?.name === "AbortError") return;
 
     console.error("Ошибка отправки результата:", error);
